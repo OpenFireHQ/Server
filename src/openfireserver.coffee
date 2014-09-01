@@ -11,6 +11,26 @@ exports.start = (attrs) ->
   Db = require("./dbs/#{attrs.db}")
   db = new Db()
 
+  setObject = (path, obj, cb, tabs = "") ->
+    if typeof obj == 'object'
+      for k of obj
+        setObject(path + "/" + k, obj[k], cb, tabs + "  ")
+    else
+      parts = path.split("/")
+      previous = parts.slice(0, parts.length -  1).join("/")
+      lastKey = parts.slice(parts.length -  1, parts.length).join("/")
+      newObj = {}
+      newObj[lastKey] = obj
+
+      log tabs + "Primitive type value belonging to " + previous
+
+      db.update(
+        path: previous
+        obj: newObj
+      cb)
+
+    return null
+
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
     pathname: '/realtime'
@@ -46,15 +66,18 @@ exports.start = (attrs) ->
           return
 
       else if type is 'set'
-        # First check if there is already something at this path
         { obj, path } = data
         log "Setting to #{path}"
-        db.set(
-          path: path
-          obj: obj
+
+        # Delete previous path to make sure our transition to a objects goes well
+        parts = path.split("/")
+        previous = parts.slice(0, parts.length -  1).join("/")
+        db.delete previous
+
+        setObject(path, obj, ->
+          spark.room(path).write()
         )
 
       return
 
-    spark.write "Hello world"
     return

@@ -4,3 +4,7 @@ global.log = (msg) ->
     arguments_.push arg
 
   console.log.apply console, arguments_
+
+unless typeof String::startsWith is "function"
+  String::startsWith = (str) ->
+    @slice(0, str.length) is str
