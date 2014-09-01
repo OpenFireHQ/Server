@@ -21,13 +21,13 @@ class Memory extends basedb
 
     showMem()
 
-  set: (obj, callback) ->
-
+  deleteEverythingAfterThisPath: (thisPath) ->
     # Delete child objects under this path
     for path of db
-      if path.startsWith obj.path
+      if path.startsWith thisPath
         @delete path
 
+  set: (obj, callback) ->
     db[obj.path] = obj.obj
     showMem()
 
