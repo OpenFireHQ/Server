@@ -15,7 +15,7 @@ exports.start = (attrs) ->
     global: 'OFRealtimeEngine'
     pathname: '/realtime'
     parser: 'JSON'
-    transformer: 'engine.io'
+    transformer: 'faye'
   })
   primus.use('rooms', Rooms)
 
@@ -88,7 +88,7 @@ exports.start = (attrs) ->
 
     return null
 
-  #primus.save(__dirname + '/primus.js')
+  primus.save(__dirname + '/realtime_engine.js')
   primus.on "connection", (spark) ->
     log "We have a caller!"
     log "connection has the following headers", spark.headers
