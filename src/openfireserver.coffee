@@ -15,7 +15,7 @@ exports.start = (attrs) ->
     global: 'OFRealtimeEngine'
     pathname: '/realtime'
     parser: 'JSON'
-    transformer: 'faye'
+    transformer: 'engine.io'
   })
   primus.use('rooms', Rooms)
 
