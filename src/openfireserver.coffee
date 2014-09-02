@@ -36,6 +36,7 @@ exports.start = (attrs) ->
     parts = path.split("/")
     previous = parts.slice(0, parts.length -  1).join("/")
     previous2 = parts.slice(0, parts.length -  2).join("/")
+    lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
     if not update and not deletedPath
       log "Deleting previous parent object path: ", path
@@ -57,32 +58,32 @@ exports.start = (attrs) ->
             deletedPath: yes
           )
 
-        if update
-          db.update(
-            obj: bulk
-            path: path
-          )
-        else
-          db.set(
-            obj: bulk
-            path: path
-          )
+        # Because of the way the flattening algo works,
+        # when an object changes from a primitive type to a object
+        # some stale data will appear that needs to be cleaned up
+        log 'Cleaning stale primitive-data'
+        delObj = {}
+        delObj[lastPath] = null
+
+        db.set(
+          path: previous
+          obj: delObj
+        )
+        #end cleaning stale data
+
+        db.set(
+          obj: bulk
+          path: path
+        )
     else
       # For primitive types (string, int...)
-      lastKey = parts.slice(parts.length -  1, parts.length).join("/")
       newObj = {}
-      newObj[lastKey] = obj
+      newObj[lastPath] = obj
 
-      if update
-        db.update(
-          obj: newObj
-          path: previous
-        )
-      else
-        db.set(
-          obj: newObj
-          path: previous
-        )
+      db.set(
+        obj: newObj
+        path: previous
+      )
 
       cb() if cb?
 

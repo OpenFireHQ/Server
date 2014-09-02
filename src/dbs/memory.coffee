@@ -10,22 +10,6 @@ class Memory extends basedb
   delete: (path) ->
     delete db[path]
 
-  update: (obj, callback) ->
-    objToSetIn = db[obj.path]
-    if obj.obj is null
-      delete db[obj.path]
-    else
-      if not objToSetIn?
-        db[obj.path] = {}
-        objToSetIn = db[obj.path]
-      for k of obj.obj
-        objToSetIn[k] = obj.obj[k] if obj.obj[k] != null
-
-    if isEmpty objToSetIn
-      delete db[obj.path]
-
-    showMem()
-
   deletePath: (thisPath) ->
     # Delete child objects under this path
     for path of db
@@ -50,10 +34,13 @@ class Memory extends basedb
     if obj.obj is null
       delete db[obj.path]
     else
-      db[obj.path] = {}
+      db[obj.path] = {} if not db[obj.path]?
       objToSetIn = db[obj.path]
       for k of obj.obj
-        objToSetIn[k] = obj.obj[k] if obj.obj[k] != null
+        if obj.obj[k] == null
+          delete objToSetIn[k]
+        else
+          objToSetIn[k] = obj.obj[k]
 
     if isEmpty objToSetIn
       delete db[obj.path]
