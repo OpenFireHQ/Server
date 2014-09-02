@@ -42,22 +42,11 @@ exports.start = (attrs) ->
       db.deletePath path
 
     if obj isnt null and typeof obj is 'object'
+      # For setting Objects
       bulk = {}
       for k of obj
         if typeof obj[k] isnt 'object'
-          bulk[k] =
-          lastKey = parts.slice(parts.length -  1, parts.length).join("/")
-          newObj = obj
-          if update
-            db.update(
-              obj: newObj
-              path: path
-            )
-          else
-            db.set(
-              obj: newObj
-              path: path
-            )
+          bulk[k] = obj[k]
         else
           optimizeAndFlatten(
             path: path + "/" + k,
@@ -67,7 +56,19 @@ exports.start = (attrs) ->
             update: update
             deletedPath: yes
           )
+
+        if update
+          db.update(
+            obj: bulk
+            path: path
+          )
+        else
+          db.set(
+            obj: bulk
+            path: path
+          )
     else
+      # For primitive types (string, int...)
       lastKey = parts.slice(parts.length -  1, parts.length).join("/")
       newObj = {}
       newObj[lastKey] = obj
