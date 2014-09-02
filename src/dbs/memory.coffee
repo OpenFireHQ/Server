@@ -11,13 +11,18 @@ class Memory extends basedb
     delete db[path]
 
   update: (obj, callback) ->
-    oldObj = db[obj.path]
-    if oldObj
-      for k of obj.obj
-        oldObj[k] = obj.obj[k]
-
+    objToSetIn = db[obj.path]
+    if obj.obj is null
+      delete db[obj.path]
     else
-      db[obj.path] = obj.obj
+      if not objToSetIn?
+        db[obj.path] = {}
+        objToSetIn = db[obj.path]
+      for k of obj.obj
+        objToSetIn[k] = obj.obj[k] if obj.obj[k] != null
+
+    if isEmpty objToSetIn
+      delete db[obj.path]
 
     showMem()
 

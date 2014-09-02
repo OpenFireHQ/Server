@@ -7,4 +7,5 @@ server.start(
 )
 
 log "Server running at http://127.0.0.1:5454/"
-log 'Connect to this DB using the OpenFire SDK: db = new OpenFire("http://127.0.0.1/db")'
+log 'Connect to this DB using the OpenFire SDK: db = new OpenFire("http://127.0.0.1:5454/db");'
+log 'You can replace /db by any namespace you want'
