@@ -1,7 +1,7 @@
 {
-  "name": "openfireserver",
+  "name": "openfire",
   "version": "0.0.0",
-  "description": "Backend Server for the OpenFire Project",
+  "description": "Backend Server & Simple CLI tool for the OpenFire Project",
   "homepage": "https://github.com/peterwilli/openfireserver",
   "repository": {
     "type": "git",
@@ -18,6 +18,9 @@
       ],
       "data-cover-never": "node_modules"
     }
+  },
+  "bin": {
+    "openfire": "./src/openfire.js"
   },
   "main": "./dist/openfireserver",
   "author": {
@@ -40,6 +43,7 @@
     "grunt-bump": "0.0.13"
   },
   "dependencies": {
+    "coffee-script": "^1.8.0",
     "engine.io": "^1.3.1",
     "primus": "^2.4.4",
     "primus-rooms": "^3.1.0",

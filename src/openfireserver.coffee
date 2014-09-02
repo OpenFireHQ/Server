@@ -27,34 +27,50 @@ exports.start = (attrs) ->
   # and optimize primitive types and objects ;)
   optimizeAndFlatten = (attrs) ->
 
-    { path, obj, cb, tabs, update } = attrs
+    { path, obj, cb, tabs, update, deletedPath } = attrs
+    log "optimizeAndFlatten, obj: ", obj
 
     tabs = "" if !tabs?
+    deletedPath = no if !deletedPath?
 
-    if typeof obj == 'object'
+    parts = path.split("/")
+    previous = parts.slice(0, parts.length -  1).join("/")
+    previous2 = parts.slice(0, parts.length -  2).join("/")
+
+    if not update and not deletedPath
+      log "Deleting previous parent object path: ", path
+      db.deletePath path
+
+    if obj isnt null and typeof obj is 'object'
+      bulk = {}
       for k of obj
-        optimizeAndFlatten(
-          path: path + "/" + k,
-          obj: obj[k],
-          tabs: tabs + "  "
-          cb: cb
-          update: update
-        )
+        if typeof obj[k] isnt 'object'
+          bulk[k] =
+          lastKey = parts.slice(parts.length -  1, parts.length).join("/")
+          newObj = obj
+          if update
+            db.update(
+              obj: newObj
+              path: path
+            )
+          else
+            db.set(
+              obj: newObj
+              path: path
+            )
+        else
+          optimizeAndFlatten(
+            path: path + "/" + k,
+            obj: obj[k],
+            tabs: tabs + "  "
+            cb: cb
+            update: update
+            deletedPath: yes
+          )
     else
-      parts = path.split("/")
-      previous = parts.slice(0, parts.length -  1).join("/")
       lastKey = parts.slice(parts.length -  1, parts.length).join("/")
       newObj = {}
       newObj[lastKey] = obj
-
-      log tabs + "Primitive type value belonging to " + previous
-
-      # Delete previous path to make sure our transition to a object goes well
-      if not update
-        log "Deleting previous parent object path: ", previous
-        db.delete previous
-
-      db.deleteEverythingAfterThisPath path
 
       if update
         db.update(
@@ -104,7 +120,6 @@ exports.start = (attrs) ->
 
       else if type is 'set'
         { obj, path } = data
-        log "Setting to #{path}"
 
         optimizeAndFlatten(
           path: path
