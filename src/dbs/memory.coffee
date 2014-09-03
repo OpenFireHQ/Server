@@ -2,7 +2,7 @@ basedb = require "./basedb"
 class Memory extends basedb
 
   showMem = ->
-    log "Memory is now: \n" + JSON.stringify(db, null, 4) + "\n(#{ Object.keys(db).length } items)"
+    log "Memory is now: \n" + displayObject(db)
 
   # In-memory storage object
   db = {}
@@ -10,22 +10,23 @@ class Memory extends basedb
   delete: (path) ->
     delete db[path]
 
-  deletePath: (thisPath) ->
+  deletePath: (thisPath, callback) ->
     # Delete child objects under this path
     for path of db
       if path is thisPath or path.startsWith thisPath + "/"
         @delete path
 
+    callback() if callback?
+
   get: (path, callback) ->
     obj = db[path]
     if obj?
       # Object exists, return
-      cb(obj)
+      callback(obj)
     else
-      cb(null)
+      callback(null)
 
   set: (obj, callback) ->
-    log "Setting using: ", obj
 
     # Everything in obj.obj should be a primitive type
     # This is done by the flatenning algorithm on the Server-side
@@ -46,5 +47,6 @@ class Memory extends basedb
       delete db[obj.path]
 
     showMem()
+    callback() if callback
 
 module.exports = Memory

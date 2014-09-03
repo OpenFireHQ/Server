@@ -13,3 +13,12 @@ global.isEmpty = (obj) ->
   for prop of obj
     return false  if obj.hasOwnProperty(prop)
   true
+
+global.displayObject = (obj) ->
+  if obj isnt null and typeof obj is 'object'
+    return JSON.stringify(obj, null, 4) + "\n(#{ Object.keys(obj).length } items)"
+  else
+    if obj is null
+      return 'null'
+    else
+      return typeof obj
