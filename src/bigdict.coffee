@@ -32,7 +32,24 @@ class BigDict
         callback() if callback?
     )
 
-  get: (path, callback, _meta) ->
+  getClosestObjectPathForValue: (path, callback) ->
+    @db.get(path, (obj) =>
+      if obj is null
+        # Either deleted or we have to get a step back so we can fetch the object
+        parts = path.split("/")
+        previous = parts.slice(0, parts.length -  1).join("/")
+        lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+
+        if not _meta?.traversedBackOnce?
+          @getClosestObjectPathForValue(previous, callback, { traversedBackOnce: yes })
+        else
+          callback null
+      else
+        # Callback immediatly
+        callback(previous)
+    )
+
+  get: (path, callback, _meta, _cbMeta = null) ->
     log "BigDict, getting: ", path
     @db.get(path, (obj) =>
       log "Value: " + displayObject(obj)
@@ -43,15 +60,15 @@ class BigDict
         lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
         if not _meta?.traversedBackOnce?
-          @get(previous, callback, { objectName: lastPath, traversedBackOnce: yes })
+          @get(previous, callback, { objectName: lastPath, traversedBackOnce: yes }, { actualPath: previous })
         else
           callback(null)
       else
         # Callback immediatly
         if _meta?.objectName?
-          callback(obj[_meta.objectName])
+          callback(obj[_meta.objectName], _cbMeta)
         else
-          callback(obj)
+          callback(obj, _cbMeta)
     )
 
   set: (path, obj, callback) ->
@@ -147,24 +164,5 @@ class BigDict
       else
         callback() if callback?
     )
-
-    ###
-    set("/db/fuckje/kkk", "33")
-    {
-      "/db/fuckje": {
-        kkk: "33"
-      }
-    }
-
-    set("/db/fuckje/kkk", {"sex": 3})
-    {
-      "/db/fuckje": {
-        kkk: "33"
-      },
-      "/db/fuckje/kkk": {
-        sex: 3
-      }
-    }
-    ###
 
 module.exports = BigDict

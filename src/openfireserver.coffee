@@ -2,6 +2,8 @@ http = require("http")
 Primus = require('primus')
 Rooms = require('primus-rooms')
 BigDict = require('./bigdict')
+ClientNotifier = require './clientnotifier'
+
 require "./global"
 
 exports.start = (attrs) ->
@@ -12,6 +14,7 @@ exports.start = (attrs) ->
   Db = require("./dbs/#{attrs.db}")
   db = new Db()
   bigDict = new BigDict(db)
+  clientNotifier = new ClientNotifier(bigDict)
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
@@ -37,12 +40,12 @@ exports.start = (attrs) ->
       { action } = data
 
       if action is 'unsub'
-        { path } = data
-        spark.leave path, ->
-          return
+        { path, type } = data
+        spark.leave type + ":" + path
 
       else if action is 'sub'
-        trySub data
+        { path, type } = data
+        clientNotifier.sub(spark, path, type)
 
       else if action is 'update'
         { obj, path } = data
@@ -55,7 +58,7 @@ exports.start = (attrs) ->
         { obj, path } = data
 
         bigDict.set(path, obj, ->
-          
+
         )
 
       return
