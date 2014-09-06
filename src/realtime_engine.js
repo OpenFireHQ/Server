@@ -1653,7 +1653,7 @@ OFRealtimeEngine.prototype.decoder = function decoder(data, fn) {
 
   fn(err, data);
 };
-OFRealtimeEngine.prototype.version = "2.4.4";
+OFRealtimeEngine.prototype.version = "2.4.5";
 
 //
 // Hack 1: \u2028 and \u2029 are allowed inside string in JSON. But JavaScript

@@ -14,7 +14,9 @@ class ClientNotifier
   notify: (spark, attrs) ->
     { type, path, obj } = attrs
     room = type + ":" + path
-    spark.room(room).write(action: 'data', path: path, type: type, obj: obj)
+    note = action: 'data', path: path, type: type, obj: obj
+    log "Notifying all clients in room #{room} with data: #{displayObject note}"
+    spark.room(room).write note
 
 
 module.exports = ClientNotifier

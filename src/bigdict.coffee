@@ -110,23 +110,6 @@ class BigDict
     previous2 = parts.slice(0, parts.length -  2).join("/")
     lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
-    @db.get(path, (currentObj) ->
-      if currentObj?
-        #this object already exists at this path, child_changed or removed
-        notifications(
-          type: 'child_removed'
-          path: path
-          obj: currentObj
-        ) if notifications?
-      else
-        #this object does not yet exists, child_added
-        notifications(
-          type: 'child_added'
-          path: path
-          obj: obj
-        ) if notifications?
-    )
-
     if not update and not deletedPath
       log "Deleting previous parent object path: ", path
       @db.deletePath path
@@ -147,17 +130,38 @@ class BigDict
             obj: obj[k]
             callback: cbCountTick
             update: update
+            notifications: notifications
+            deletedPath: deletedPath
           )
         else
           bulk[k] = obj[k]
 
-      cbCount++
-      @db.set(
-        obj: bulk
-        path: path
-      , ->
-        cbCountTick()
-      )
+      if !isEmpty(bulk)
+        cbCount++
+
+        @db.get(path, (currentObj) ->
+          if currentObj?
+            #this object already exists at this path, child_changed or removed
+            notifications(
+              type: 'child_removed'
+              path: path
+              obj: currentObj
+            ) if notifications?
+          else
+            #this object does not yet exists, child_added
+            notifications(
+              type: 'child_added'
+              path: previous
+              obj: obj
+            ) if notifications?
+        )
+
+        @db.set(
+          obj: bulk
+          path: path
+        , ->
+          cbCountTick()
+        )
 
     else
       # For primitive types (string, int...)
