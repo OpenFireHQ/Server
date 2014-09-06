@@ -27,7 +27,6 @@ exports.start = (attrs) ->
   primus.on "error", error = (err) ->
     console.error "Something horrible has happened", err.stack
     return
-
   primus.save(__dirname + '/realtime_engine.js')
   primus.on "connection", (spark) ->
     log "We have a caller!"
@@ -57,10 +56,12 @@ exports.start = (attrs) ->
       else if action is 'set'
         { obj, path } = data
 
-        bigDict.set(path, obj, ->
+        bigDict.set(
+          path: path
+          obj: obj
+          notifications: (note) ->
+            clientNotifier.notify(spark, note)
+
+          callback: ->
 
         )
-
-      return
-
-    return

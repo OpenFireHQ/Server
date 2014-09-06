@@ -49,7 +49,7 @@ class BigDict
         callback(previous)
     )
 
-  get: (path, callback, _meta, _cbMeta = null) ->
+  get: (path, callback, _meta) ->
     log "BigDict, getting: ", path
     @db.get(path, (obj) =>
       log "Value: " + displayObject(obj)
@@ -60,27 +60,35 @@ class BigDict
         lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
         if not _meta?.traversedBackOnce?
-          @get(previous, callback, { objectName: lastPath, traversedBackOnce: yes }, { actualPath: previous })
+          @get(previous, callback, { objectName: lastPath, traversedBackOnce: yes })
         else
           callback(null)
       else
         # Callback immediatly
         if _meta?.objectName?
-          callback(obj[_meta.objectName], _cbMeta)
+          callback(obj[_meta.objectName])
         else
-          callback(obj, _cbMeta)
+          callback(obj)
     )
 
-  set: (path, obj, callback) ->
+  set: (attrs) ->
+
+    { path, obj, callback, notifications } = attrs
+
     @edit(
+      notifications: notifications
       path: path
       obj: obj
       callback: callback
       update: no
     )
 
-  update: (path, obj, callback) ->
+  update: (attrs) ->
+
+    { path, obj, callback, notifications } = attrs
+
     @edit(
+      notifications: notifications
       path: path
       obj: obj
       callback: callback
@@ -89,7 +97,7 @@ class BigDict
 
   edit: (attrs) ->
 
-    { path, obj, callback, update, deletedPath } = attrs
+    { path, obj, callback, update, deletedPath, notifications } = attrs
 
     cbCount = 0
     cbCountTick = ->
@@ -101,6 +109,23 @@ class BigDict
     previous = parts.slice(0, parts.length -  1).join("/")
     previous2 = parts.slice(0, parts.length -  2).join("/")
     lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+
+    @db.get(path, (currentObj) ->
+      if currentObj?
+        #this object already exists at this path, child_changed or removed
+        notifications(
+          type: 'child_removed'
+          path: path
+          obj: currentObj
+        ) if notifications?
+      else
+        #this object does not yet exists, child_added
+        notifications(
+          type: 'child_added'
+          path: path
+          obj: obj
+        ) if notifications?
+    )
 
     if not update and not deletedPath
       log "Deleting previous parent object path: ", path
