@@ -32,7 +32,7 @@ class BigDict
         callback() if callback?
     )
 
-  getClosestObjectPathForValue: (path, callback) ->
+  getClosestObjectPathForValue: (path, callback, _meta = null) ->
     @db.get(path, (obj) =>
       if obj is null
         # Either deleted or we have to get a step back so we can fetch the object
@@ -46,11 +46,11 @@ class BigDict
           callback null
       else
         # Callback immediatly
-        callback(previous)
+        callback(path)
     )
 
-  get: (path, callback, _meta) ->
-    log "BigDict, getting: ", path
+  getClosestObject: (path, callback, _meta = null) ->
+    log "BigDict, getClosestObjecting: ", path
     @db.get(path, (obj) =>
       log "Value: " + displayObject(obj)
       if obj is null
@@ -60,15 +60,39 @@ class BigDict
         lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
         if not _meta?.traversedBackOnce?
-          @get(previous, callback, { objectName: lastPath, traversedBackOnce: yes })
+          @get(previous, callback, { traversedBackOnce: yes })
         else
           callback(null)
       else
         # Callback immediatly
-        if _meta?.objectName?
-          callback(obj[_meta.objectName])
+        callback(obj)
+    )
+
+  get: (path, callback, _meta = { callback: {} }) ->
+    log "BigDict, getting: ", path if not _meta.traversedBackOnce?
+    @db.get(path, (obj) =>
+      if obj is null
+        # Either deleted or we have to get a step back so we can fetch the object
+        parts = path.split("/")
+        previous = parts.slice(0, parts.length -  1).join("/")
+        lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+
+        if not _meta.traversedBackOnce?
+          _meta.objectName = lastPath
+          _meta.traversedBackOnce = yes
+          @get(previous, callback, _meta)
         else
-          callback(obj)
+          log "Value: " + displayObject(obj)
+          callback(null, _meta.callback)
+      else
+        # Callback immediatly
+        if _meta?.objectName?
+          obj = obj[_meta.objectName] or null
+          log "Value: " + displayObject(obj)
+          callback(obj, _meta.callback)
+        else
+          log "Value: " + displayObject(obj)
+          callback(obj, _meta.callback)
     )
 
   set: (attrs) ->
@@ -93,6 +117,26 @@ class BigDict
       obj: obj
       callback: callback
       update: yes
+    )
+
+  childAddedOrRemovedNotification: (attrs) ->
+    log "childAddedOrRemovedNotification with attrs:#{displayObject attrs}"
+    { path, objectToSend, pathToSend, notifications } = attrs
+    @get(path, (currentObj) ->
+      if currentObj?
+        #this object already exists at this path, child_changed or removed
+        notifications(
+          type: 'child_removed'
+          path: pathToSend
+          obj: objectToSend
+        ) if notifications?
+      else
+        #this object does not yet exists, child_added
+        notifications(
+          type: 'child_added'
+          path: pathToSend
+          obj: objectToSend
+        ) if notifications?
     )
 
   edit: (attrs) ->
@@ -122,9 +166,7 @@ class BigDict
       bulk = {}
       for k of obj
         if obj[k] != null and typeof obj[k] is 'object'
-
           cbCount++
-
           @edit(
             path: "#{path}/#{k}"
             obj: obj[k]
@@ -135,26 +177,10 @@ class BigDict
           )
         else
           bulk[k] = obj[k]
+          @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj[k] )
 
       if !isEmpty(bulk)
-        cbCount++
-
-        @db.get(path, (currentObj) ->
-          if currentObj?
-            #this object already exists at this path, child_changed or removed
-            notifications(
-              type: 'child_removed'
-              path: path
-              obj: currentObj
-            ) if notifications?
-          else
-            #this object does not yet exists, child_added
-            notifications(
-              type: 'child_added'
-              path: previous
-              obj: obj
-            ) if notifications?
-        )
+        @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj )
 
         @db.set(
           obj: bulk
@@ -162,20 +188,6 @@ class BigDict
         , ->
           cbCountTick()
         )
-
-    else
-      # For primitive types (string, int...)
-
-      newObj = {}
-      newObj[lastPath] = obj
-
-      cbCount++
-      @db.set(
-        obj: newObj
-        path: previous
-      , ->
-        cbCountTick()
-      )
 
   deletePrimitiveTypesUnderPathComponents: (path, callback) ->
     log "deletePrimitiveTypesUnderPathComponents: ", path
