@@ -49,7 +49,16 @@ exports.start = (attrs) ->
       else if action is 'update'
         { obj, path } = data
 
-        bigDict.update(path, obj, ->
+        bigDict.handleNotifications(
+          path: path
+          obj: obj
+          callback: (note) ->
+            clientNotifier.notify(spark, note)
+        )
+        bigDict.update(
+          path: path
+          obj: obj
+          callback: ->
 
         )
 
