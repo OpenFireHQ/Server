@@ -55,13 +55,15 @@ exports.start = (attrs) ->
 
       else if action is 'set'
         { obj, path } = data
-
+        bigDict.handleNotifications(
+          path: path
+          obj: obj
+          callback: (note) ->
+            clientNotifier.notify(spark, note)
+        )
         bigDict.set(
           path: path
           obj: obj
-          notifications: (note) ->
-            clientNotifier.notify(spark, note)
-
           callback: ->
 
         )

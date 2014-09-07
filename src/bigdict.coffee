@@ -120,28 +120,87 @@ class BigDict
     )
 
   childAddedOrRemovedNotification: (attrs) ->
-    log "childAddedOrRemovedNotification with attrs:#{displayObject attrs}"
-    { path, objectToSend, pathToSend, notifications } = attrs
+    { path, objectToSend, pathToSend, callback } = attrs
     @get(path, (currentObj) ->
       if currentObj?
         #this object already exists at this path, child_changed or removed
-        notifications(
+        callback(
           type: 'child_removed'
           path: pathToSend
           obj: objectToSend
-        ) if notifications?
+        ) if callback?
       else
         #this object does not yet exists, child_added
-        notifications(
+        callback(
           type: 'child_added'
           path: pathToSend
           obj: objectToSend
-        ) if notifications?
+        ) if callback?
     )
+
+  normalizeData: (dataArray) ->
+    result = {}
+    for d in dataArray
+      { path, obj } = d
+      parts = path.split("/")
+      objToWorkWith = result
+      lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+      for i in [0..parts.length - 2]
+        part = parts[i]
+        continue if part is ''
+        if !objToWorkWith[part]?
+          objToWorkWith[part] = {}
+        objToWorkWith = objToWorkWith[part]
+
+      objToWorkWith[lastPath] = obj
+
+    return result
+
+  normalRecurse: (attrs) ->
+    { callback, path, obj } = attrs
+    parts = path.split("/")
+    previous = parts.slice(0, parts.length -  1).join("/")
+
+    if obj isnt null and typeof obj is 'object'
+      # For setting Objects
+      bulk = {}
+      for k of obj
+        if obj[k] != null and typeof obj[k] is 'object'
+          @normalRecurse(callback: callback, path: "#{path}/#{k}", obj: obj[k])
+        else
+          callback(obj: obj, path: path)
+
+  handleNotifications: (attrs) ->
+
+    { callback, path, obj } = attrs
+
+    data = @normalizeData [{path: path, obj: obj}]
+    f = (data, _path) =>
+      parts = _path.split("/")
+      previous = parts.slice(0, parts.length -  1).join("/")
+
+      if typeof data is 'object'
+        for k of data
+          log "Adding " + k
+          @childAddedOrRemovedNotification( callback: callback, path: _path, pathToSend: _path, objectToSend: data )
+          f(data[k], _path + "/" + k)
+      else
+        @childAddedOrRemovedNotification( callback: callback, path: previous, pathToSend: previous, objectToSend: data )
+
+    log "Normalized data: " + displayObject(data)
+    f(data, "")
+
+
+    ###
+    @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj )
+  else
+    bulk[k] = obj[k]
+    @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: path, objectToSend: obj[k] )
+    ###
 
   edit: (attrs) ->
 
-    { path, obj, callback, update, deletedPath, notifications } = attrs
+    { path, obj, callback, update, deletedPath } = attrs
 
     cbCount = 0
     cbCountTick = ->
@@ -172,15 +231,12 @@ class BigDict
             obj: obj[k]
             callback: cbCountTick
             update: update
-            notifications: notifications
             deletedPath: deletedPath
           )
         else
           bulk[k] = obj[k]
-          @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj[k] )
 
       if !isEmpty(bulk)
-        @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj )
 
         @db.set(
           obj: bulk
