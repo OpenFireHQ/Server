@@ -34,7 +34,7 @@ showInfo = (attrs) ->
   console.log "Running OpenFire Server on port #{port}"
   console.log "Connect to this DB using the OpenFire SDK:"
   console.log "    #{"db"} = #{"new".cyan} #{"OpenFire".yellow}(#{"\"http://127.0.0.1:5454/db\"".green});"
-  console.log "You can replace /db by any namespace you want"
+  console.log "You can replace /db with any namespace you want"
 
 showCommands = ->
   console.log "Please supply a command!".warn + "\nValid commands are: ".help
