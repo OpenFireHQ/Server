@@ -3,13 +3,23 @@ Primus = require('primus')
 Rooms = require('primus-rooms')
 BigDict = require('./bigdict')
 ClientNotifier = require './clientnotifier'
+extend = require('node.extend')
 
 require "./global"
+defaults =
+  port: 5454
+  host: "0.0.0.0"
+  db: "memory"
+  logging: no
 
 exports.start = (attrs) ->
+  attrs = extend(defaults, attrs)
+  if !attrs.logging
+    global.log = (msg) ->
+      # To the bitbucket!
   server = http.createServer((req, res) ->
 
-  ).listen 5454, "127.0.0.1"
+  ).listen attrs.port, attrs.host
 
   Db = require("./dbs/#{attrs.db}")
   db = new Db()
@@ -76,3 +86,5 @@ exports.start = (attrs) ->
           callback: ->
 
         )
+
+  return attrs
