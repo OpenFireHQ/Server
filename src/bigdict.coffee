@@ -123,12 +123,20 @@ class BigDict
             loopKeysAsPaths(newData[k], oldData?[k], __path)
 
           if oldData?[k]
-            # edited
-            callback(
-              type: 'child_changed'
-              path: _path
-              obj: newData[k]
-            ) if callback?
+            if newData[k] is null
+              # edited
+              callback(
+                type: 'child_removed'
+                path: _path
+                obj: oldData[k]
+              ) if callback?
+            else
+              # edited
+              callback(
+                type: 'child_changed'
+                path: _path
+                obj: newData[k]
+              ) if callback?
           else
             callback(
               type: 'child_added'
@@ -138,7 +146,7 @@ class BigDict
 
     newData = @normalizeData [{path: path, obj: obj}]
     @get(path, (oldData) ->
-      log "loopKeysAsPaths: \nNew: #{displayObject  newData}\n Old: #{displayObject oldData}"
+      #log "loopKeysAsPaths: \nNew: #{displayObject  newData}\n Old: #{displayObject oldData}"
       loopKeysAsPaths(newData, oldData)
     )
 
