@@ -60,7 +60,7 @@ class BigDict
         lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
         if not _meta?.traversedBackOnce?
-          @get(previous, callback, { traversedBackOnce: yes })
+          @getClosestObject(previous, callback, { traversedBackOnce: yes })
         else
           callback(null)
       else
@@ -70,8 +70,9 @@ class BigDict
 
   get: (path, callback, _meta = { callback: {} }) ->
     log "BigDict, getting: ", path if not _meta.traversedBackOnce?
-    @db.get(path, (obj) =>
-      if obj is null
+    @db.getStartingWithPath(path, (objs) =>
+      log "low level objs: ", displayObject objs
+      if objs is null
         # Either deleted or we have to get a step back so we can fetch the object
         parts = path.split("/")
         previous = parts.slice(0, parts.length -  1).join("/")
@@ -86,13 +87,12 @@ class BigDict
           callback(null, _meta.callback)
       else
         # Callback immediatly
-        if _meta?.objectName?
-          obj = obj[_meta.objectName] or null
-          log "Value: " + displayObject(obj)
-          callback(obj, _meta.callback)
+        obj = @normalizeData(objs)
+        log "Get result: ", displayObject obj
+        if _meta.objectName?
+          callback obj[_meta.objectName] or null
         else
-          log "Value: " + displayObject(obj)
-          callback(obj, _meta.callback)
+          callback obj
     )
 
   set: (attrs) ->
@@ -142,17 +142,23 @@ class BigDict
     result = {}
     for d in dataArray
       { path, obj } = d
-      parts = path.split("/")
+      parts = path.split("/").filter((el) ->
+        el.length isnt 0
+      )
       objToWorkWith = result
       lastPath = parts.slice(parts.length -  1, parts.length).join("/")
-      for i in [0..parts.length - 2]
+      firstPath = parts[0]
+      for i in [0..parts.length - 1]
         part = parts[i]
-        continue if part is ''
-        if !objToWorkWith[part]?
-          objToWorkWith[part] = {}
-        objToWorkWith = objToWorkWith[part]
+        #log "normalizeData -> Going over part: ", part
+        if i > 0
+          if !objToWorkWith[part]?
+            objToWorkWith[part] = {}
 
-      objToWorkWith[lastPath] = obj
+          objToWorkWith = objToWorkWith[part]
+
+      for k of obj
+        objToWorkWith[k] = obj[k]
 
     return result
 
@@ -174,31 +180,36 @@ class BigDict
 
     { callback, path, obj } = attrs
 
-    normalRecurse(
-      obj: obj
-      path: path
-      callback:  (attrs) ->
-        { path, obj } = attrs
-        @childAddedOrRemovedNotification( callback: callback, path: path, pathToSend: path, objectToSend: obj )
+    log "handleNotifications: ", path
+
+    parts = path.split("/")
+    firstPath = parts.slice(0, 2).join("/")
+    loopKeysAsPaths = (newData, oldData, _path = firstPath) =>
+      if typeof newData is 'object'
+        for k of newData
+          __path = _path + "/" + k
+          if typeof newData[k] is 'object'
+            loopKeysAsPaths(newData[k], oldData?[k], __path)
+
+          if oldData?[k]
+            # edited
+            callback(
+              type: 'child_changed'
+              path: _path
+              obj: newData[k]
+            ) if callback?
+          else
+            callback(
+              type: 'child_added'
+              path: _path
+              obj: newData[k]
+            ) if callback?
+
+    newData = @normalizeData [{path: path, obj: obj}]
+    @get(path, (oldData) ->
+      log "loopKeysAsPaths: \nNew: #{displayObject  newData}\n Old: #{displayObject oldData}"
+      loopKeysAsPaths(newData, oldData)
     )
-    data = @normalizeData [{path: path, obj: obj}]
-
-    #@childAddedOrRemovedNotification( callback: callback, path: _path, pathToSend: _path, objectToSend: data )
-
-    f = (data, _path) =>
-      parts = _path.split("/")
-      previous = parts.slice(0, parts.length -  1).join("/")
-
-      if typeof data is 'object'
-        for k of data
-          log "Adding " + k
-          @childAddedOrRemovedNotification( callback: callback, path: _path, pathToSend: _path, objectToSend: data )
-          f(data[k], _path + "/" + k)
-      else
-        @childAddedOrRemovedNotification( callback: callback, path: previous, pathToSend: previous, objectToSend: data )
-
-    log "Normalized data: " + displayObject(data)
-    f(data, "")
 
 
   edit: (attrs) ->

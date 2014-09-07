@@ -18,6 +18,17 @@ class Memory extends basedb
 
     callback() if callback?
 
+  getStartingWithPath: (thisPath, callback) ->
+    result = []
+    for path of db
+      if path is thisPath or path.startsWith thisPath + "/"
+        result.push(path: path, obj: db[path])
+
+    if result.length is 0
+      callback null
+    else
+      callback result
+
   get: (path, callback) ->
     obj = db[path]
     if obj?
