@@ -32,42 +32,6 @@ class BigDict
         callback() if callback?
     )
 
-  getClosestObjectPathForValue: (path, callback, _meta = null) ->
-    @db.get(path, (obj) =>
-      if obj is null
-        # Either deleted or we have to get a step back so we can fetch the object
-        parts = path.split("/")
-        previous = parts.slice(0, parts.length -  1).join("/")
-        lastPath = parts.slice(parts.length -  1, parts.length).join("/")
-
-        if not _meta?.traversedBackOnce?
-          @getClosestObjectPathForValue(previous, callback, { traversedBackOnce: yes })
-        else
-          callback null
-      else
-        # Callback immediatly
-        callback(path)
-    )
-
-  getClosestObject: (path, callback, _meta = null) ->
-    log "BigDict, getClosestObjecting: ", path
-    @db.get(path, (obj) =>
-      log "Value: " + displayObject(obj)
-      if obj is null
-        # Either deleted or we have to get a step back so we can fetch the object
-        parts = path.split("/")
-        previous = parts.slice(0, parts.length -  1).join("/")
-        lastPath = parts.slice(parts.length -  1, parts.length).join("/")
-
-        if not _meta?.traversedBackOnce?
-          @getClosestObject(previous, callback, { traversedBackOnce: yes })
-        else
-          callback(null)
-      else
-        # Callback immediatly
-        callback(obj)
-    )
-
   get: (path, callback, _meta = { callback: {} }) ->
     log "BigDict, getting: ", path if not _meta.traversedBackOnce?
     @db.getStartingWithPath(path, (objs) =>
@@ -119,25 +83,6 @@ class BigDict
       update: yes
     )
 
-  childAddedOrRemovedNotification: (attrs) ->
-    { path, objectToSend, pathToSend, callback } = attrs
-    @get(path, (currentObj) ->
-      if currentObj?
-        #this object already exists at this path, child_changed or removed
-        callback(
-          type: 'child_removed'
-          path: pathToSend
-          obj: objectToSend
-        ) if callback?
-      else
-        #this object does not yet exists, child_added
-        callback(
-          type: 'child_added'
-          path: pathToSend
-          obj: objectToSend
-        ) if callback?
-    )
-
   normalizeData: (dataArray) ->
     result = {}
     for d in dataArray
@@ -161,20 +106,6 @@ class BigDict
         objToWorkWith[k] = obj[k]
 
     return result
-
-  normalRecurse: (attrs) ->
-    { callback, path, obj } = attrs
-    parts = path.split("/")
-    previous = parts.slice(0, parts.length -  1).join("/")
-
-    if obj isnt null and typeof obj is 'object'
-      # For setting Objects
-      bulk = {}
-      for k of obj
-        if obj[k] != null and typeof obj[k] is 'object'
-          @normalRecurse(callback: callback, path: "#{path}/#{k}", obj: obj[k])
-        else
-          callback(obj: obj, path: path)
 
   handleNotifications: (attrs) ->
 
