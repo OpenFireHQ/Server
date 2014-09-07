@@ -174,7 +174,17 @@ class BigDict
 
     { callback, path, obj } = attrs
 
+    normalRecurse(
+      obj: obj
+      path: path
+      callback:  (attrs) ->
+        { path, obj } = attrs
+        @childAddedOrRemovedNotification( callback: callback, path: path, pathToSend: path, objectToSend: obj )
+    )
     data = @normalizeData [{path: path, obj: obj}]
+
+    #@childAddedOrRemovedNotification( callback: callback, path: _path, pathToSend: _path, objectToSend: data )
+
     f = (data, _path) =>
       parts = _path.split("/")
       previous = parts.slice(0, parts.length -  1).join("/")
@@ -190,13 +200,6 @@ class BigDict
     log "Normalized data: " + displayObject(data)
     f(data, "")
 
-
-    ###
-    @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: previous, objectToSend: obj )
-  else
-    bulk[k] = obj[k]
-    @childAddedOrRemovedNotification( notifications: notifications, path: path, pathToSend: path, objectToSend: obj[k] )
-    ###
 
   edit: (attrs) ->
 
