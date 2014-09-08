@@ -56,7 +56,8 @@ exports.start = (attrs) ->
 
       else if action is 'sub'
         { path, type } = data
-        clientNotifier.sub(spark, path, type)
+        validate data, ->
+          clientNotifier.sub(spark, path, type)
 
       else if action is 'update'
         { obj, path } = data

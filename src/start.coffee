@@ -3,6 +3,7 @@ require "./global"
 server = require "./openfireserver"
 args = require('minimist')(process.argv.slice(3))
 fs = require "fs"
+path = require "path"
 colors = require('colors')
 colors.setTheme
   silly: "rainbow"
@@ -16,8 +17,7 @@ colors.setTheme
   debug: "blue"
   error: "red"
 
-
-asciiArt = fs.readFileSync('./ascii.art').toString()
+asciiArt = fs.readFileSync(path.resolve(__dirname, '..', 'ascii.art')).toString()
 console.log asciiArt
 command = process.argv[2]
 
