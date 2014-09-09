@@ -131,6 +131,15 @@ class BigDict
                 name: k
                 obj: oldData[k]
               ) if callback?
+
+              if typeof oldData[k] is 'object'
+                for k2 of oldData[k]
+                  callback(
+                    type: 'child_removed'
+                    path: _path
+                    name: k2
+                    obj: oldData[k][k2]
+                  ) if callback?
             else
               # edited
               callback(

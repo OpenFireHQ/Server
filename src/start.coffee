@@ -20,13 +20,16 @@ colors.setTheme
 asciiArt = fs.readFileSync(path.resolve(__dirname, '..', 'ascii.art')).toString()
 console.log asciiArt
 command = process.argv[2]
-
 commands =
   hack:
     desc: "Launches a simple in-memory OpenFire-database with full logging.\nIt does not need any extra setup and is great for starting quickly!"
     warn: "Data will be deleted when the server is shut-down"
     run: ->
-      attrs = server.start(db: 'memory', logging: yes)
+      obj = db: 'memory', logging: yes
+      for k of args 
+        continue if k is '_'
+        obj[k] = args[k]
+      attrs = server.start(obj)
       showInfo attrs
 
 showInfo = (attrs) ->
