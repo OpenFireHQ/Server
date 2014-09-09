@@ -3,6 +3,7 @@ Primus = require('primus')
 Rooms = require('primus-rooms')
 BigDict = require('./bigdict')
 ClientNotifier = require './clientnotifier'
+Validator = require './validator'
 extend = require('node.extend')
 
 require "./global"
@@ -25,6 +26,8 @@ exports.start = (attrs) ->
   db = new Db()
   bigDict = new BigDict(db)
   clientNotifier = new ClientNotifier(bigDict)
+  validator = new Validator(db, bigDict)
+  validate = validator.validate
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
@@ -54,37 +57,39 @@ exports.start = (attrs) ->
 
       else if action is 'sub'
         { path, type } = data
-        clientNotifier.sub(spark, path, type)
+        validate data, ->
+          clientNotifier.sub(spark, path, type)
 
       else if action is 'update'
         { obj, path } = data
+        validate data, ->
+          bigDict.handleNotifications(
+            path: path
+            obj: obj
+            callback: (note) ->
+              clientNotifier.notify(spark, note)
+          )
+          bigDict.update(
+            path: path
+            obj: obj
+            callback: ->
 
-        bigDict.handleNotifications(
-          path: path
-          obj: obj
-          callback: (note) ->
-            clientNotifier.notify(spark, note)
-        )
-        bigDict.update(
-          path: path
-          obj: obj
-          callback: ->
-
-        )
+          )
 
       else if action is 'set'
         { obj, path } = data
-        bigDict.handleNotifications(
-          path: path
-          obj: obj
-          callback: (note) ->
-            clientNotifier.notify(spark, note)
-        )
-        bigDict.set(
-          path: path
-          obj: obj
-          callback: ->
+        validate data, ->
+          bigDict.handleNotifications(
+            path: path
+            obj: obj
+            callback: (note) ->
+              clientNotifier.notify(spark, note)
+          )
+          bigDict.set(
+            path: path
+            obj: obj
+            callback: ->
 
-        )
+          )
 
   return attrs
