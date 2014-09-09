@@ -7,11 +7,11 @@ RUN     rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-
 RUN     yum install -y npm
 
 # Bundle app source
-COPY . /src
+COPY . /app
 
 # Install app dependencies
-RUN cd /src; npm install
+RUN cd /app; npm install
 
 EXPOSE 5454
 
-CMD ["node", "/src/openfire.js", "hack"]
+CMD ["node", "/app/src/openfire.js", "hack"]
