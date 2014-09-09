@@ -14,4 +14,4 @@ RUN cd /app; npm install
 
 EXPOSE 5454
 
-CMD ["node", "/app/src/openfire.js", "hack"]
+CMD ["node", "/app/src/openfire.js", "hack", "--no-logging"]
