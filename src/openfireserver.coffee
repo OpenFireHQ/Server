@@ -26,7 +26,8 @@ exports.start = (attrs) ->
   db = new Db()
   bigDict = new BigDict(db)
   clientNotifier = new ClientNotifier(bigDict)
-  validate = new Validator(db, bigDict)
+  validator = new Validator(db, bigDict)
+  validate = validator.validate
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'

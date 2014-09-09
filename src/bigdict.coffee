@@ -124,10 +124,11 @@ class BigDict
 
           if oldData?[k]
             if newData[k] is null
-              # edited
+              # Removed
               callback(
                 type: 'child_removed'
                 path: _path
+                name: k
                 obj: oldData[k]
               ) if callback?
             else
@@ -135,12 +136,14 @@ class BigDict
               callback(
                 type: 'child_changed'
                 path: _path
+                name: k
                 obj: newData[k]
               ) if callback?
           else
             callback(
               type: 'child_added'
               path: _path
+              name: k
               obj: newData[k]
             ) if callback?
 

@@ -1,5 +1,6 @@
 class Validator
   constructor: (@db, @bigDict) ->
+
   validate: (data, cb) ->
     { obj, path } = data
 
