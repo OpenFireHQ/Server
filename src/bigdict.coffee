@@ -125,21 +125,21 @@ class BigDict
           if oldData?[k]
             if newData[k] is null
               # Removed
-              callback(
-                type: 'child_removed'
-                path: _path
-                name: k
-                obj: oldData[k]
-              ) if callback?
-
               if typeof oldData[k] is 'object'
                 for k2 of oldData[k]
                   callback(
                     type: 'child_removed'
-                    path: _path
+                    path: __path
                     name: k2
                     obj: oldData[k][k2]
                   ) if callback?
+              else
+                callback(
+                  type: 'child_removed'
+                  path: _path
+                  name: k
+                  obj: oldData[k]
+                ) if callback?
             else
               # edited
               callback(
