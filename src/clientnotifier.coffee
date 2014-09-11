@@ -10,6 +10,12 @@ class ClientNotifier
       @bigDict.get(path, (obj) ->
         spark.write(action: 'data', path: path, type: type, obj: obj)
       )
+    else if type is 'child' or type is 'remote_child'
+      @bigDict.get(path, (obj) ->
+        for k of obj
+          for k2 of obj[k]
+            spark.write(action: 'data', path: path, type: type, obj: obj[k][k2], name: k2)
+      )
 
   notify: (spark, attrs) ->
     { type, path, obj, name } = attrs
