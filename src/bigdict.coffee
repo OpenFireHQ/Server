@@ -54,7 +54,7 @@ class BigDict
         obj = @normalizeData(objs)
         log "Get result: ", displayObject obj
         if _meta.objectName?
-          callback obj[_meta.objectName] or null
+          callback obj[_meta.objectName]
         else
           callback obj
     )
