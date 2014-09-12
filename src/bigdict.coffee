@@ -184,7 +184,6 @@ class BigDict
 
     parts = path.split("/")
     previous = parts.slice(0, parts.length -  1).join("/")
-    previous2 = parts.slice(0, parts.length -  2).join("/")
     lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
     if not update and not deletedPath
@@ -208,10 +207,12 @@ class BigDict
             deletedPath: deletedPath
           )
         else
+          if obj[k] is null
+            @delete path + "/" + k
+
           bulk[k] = obj[k]
 
       if !isEmpty(bulk)
-
         @db.set(
           obj: bulk
           path: path

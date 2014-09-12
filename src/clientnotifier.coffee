@@ -15,7 +15,7 @@ class ClientNotifier
           path: path
           obj: obj
           name: null
-        }, no)
+        }, no, yes)
       , omitParentObject: yes)
     else if type is 'child' or type is 'remote_child'
       @bigDict.get(path, (obj) ->
@@ -24,19 +24,23 @@ class ClientNotifier
             spark.write(action: 'data', path: path, type: type, obj: obj[k][k2], name: k2)
       )
 
-  notify: (spark, attrs, supportRemote = yes) ->
+  notify: (spark, attrs, supportRemote = yes, justMe = no) ->
     { type, path, obj, name } = attrs
     room = type + ":" + path
     note = action: 'data', path: path, type: type, obj: obj, name: name
-    log "Notifying all clients in room #{room} with data: #{displayObject note}"
 
-    spark.room(room).write note
+    if justMe
+      log "Notifying a single client with data: #{displayObject note}"
+      # justMe overrides remote_ behaviour
+      spark.write note
+    else
+      log "Notifying all clients in room #{room} with data: #{displayObject note}"
+      spark.room(room).write note
 
-    # Create one for remote notes only as well
-    note.type = "remote_" + note.type
-    room = note.type + ":" + path
-    spark.room(room).except(spark.id).write note
-
-
+      if supportRemote
+        # Create one for remote notes only as well
+        note.type = "remote_" + note.type
+        room = note.type + ":" + path
+        spark.room(room).except(spark.id).write note
 
 module.exports = ClientNotifier

@@ -61,11 +61,12 @@ exports.start = (attrs) ->
           dataParser.parse(spark, data)
 
         # After the loop, delete all commands for this connected id
+        log "Commands fired, now deleting queue"
         deleteObj = { }
         deleteObj[spark.id] = null
-        bigDict.set(
+        bigDict.update(
           path: metaPath + "/commandQueue/afterDisconnect"
-          object: deleteObj
+          obj: deleteObj
         )
 
     , omitParentObject: yes)

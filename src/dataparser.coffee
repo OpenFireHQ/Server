@@ -52,12 +52,27 @@ class DataParser
 
         )
 
+    else if action is 'afterDisconnect:update'
+      { obj, path } = data
+      #No validation here, because nothing really happens, and validation can change over time
+      #validation will happen at the moment the commands will be executed
+      bigDict.set(
+        path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/update" + path.replace(/\//gi, '_')
+        obj:
+          action: 'update'
+          path: path
+          obj: JSON.stringify(obj)
+
+        callback: ->
+
+      )
+
     else if action is 'afterDisconnect:set'
       { obj, path } = data
       #No validation here, because nothing really happens, and validation can change over time
       #validation will happen at the moment the commands will be executed
       bigDict.set(
-        path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/" + path.replace(/\//gi, '_')
+        path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/set" + path.replace(/\//gi, '_')
         obj:
           action: 'set'
           path: path
