@@ -1,11 +1,12 @@
 class DataParser
 
-  constructor: (@bigDict, @clientNotifier, @validate) ->
+  constructor: (@bigDict, @clientNotifier, @validator) ->
 
-  parse: (spark, data) ->
+  parse: (spark, data, skipValidation = no) ->
     bigDict = @bigDict
     clientNotifier = @clientNotifier
-    validate = @validate
+    validator = @validator
+    accessesMeta = @validator.accessesMeta
 
     log "received data from the client", data
 
@@ -17,12 +18,12 @@ class DataParser
 
     else if action is 'sub'
       { path, type } = data
-      validate data, ->
+      validator.validate data, skipValidation, ->
         clientNotifier.sub(spark, path, type)
 
     else if action is 'update'
       { obj, path } = data
-      validate data, ->
+      validator.validate data, skipValidation, ->
         bigDict.handleNotifications(
           path: path
           obj: obj
@@ -38,7 +39,7 @@ class DataParser
 
     else if action is 'set'
       { obj, path } = data
-      validate data, ->
+      validator.validate data, skipValidation, ->
         bigDict.handleNotifications(
           path: path
           obj: obj
@@ -49,14 +50,17 @@ class DataParser
           path: path
           obj: obj
           callback: ->
-
+            
         )
 
     else if action is 'afterDisconnect:update'
       { obj, path } = data
+
+      return if accessesMeta path
+
       #No validation here, because nothing really happens, and validation can change over time
       #validation will happen at the moment the commands will be executed
-      bigDict.set(
+      bigDict.update(
         path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/update" + path.replace(/\//gi, '_')
         obj:
           action: 'update'
@@ -69,9 +73,12 @@ class DataParser
 
     else if action is 'afterDisconnect:set'
       { obj, path } = data
+
+      return if accessesMeta path
+
       #No validation here, because nothing really happens, and validation can change over time
       #validation will happen at the moment the commands will be executed
-      bigDict.set(
+      bigDict.update(
         path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/set" + path.replace(/\//gi, '_')
         obj:
           action: 'set'

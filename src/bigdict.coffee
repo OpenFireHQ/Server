@@ -171,6 +171,22 @@ class BigDict
       loopKeysAsPaths(newData, oldData)
     )
 
+  triggerValueNotifications: (attrs) ->
+
+    { path } = attrs
+
+    valueListener = "/_meta/listeners/value"
+
+    # Get a list of paths that relate to this
+    @db.getPathNamesStartingWithPath(valueListener + path, (paths) =>
+      if paths isnt null
+        for path in paths
+          path = path.substring(valueListener.length, path.length)
+          @get(path, (obj) ->
+
+          , omitParentObject: yes)
+    )
+
 
   edit: (attrs) ->
 
@@ -216,7 +232,7 @@ class BigDict
         @db.set(
           obj: bulk
           path: path
-        , ->
+        , =>
           cbCountTick()
         )
 

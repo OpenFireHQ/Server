@@ -30,7 +30,7 @@ exports.start = (attrs) ->
   clientNotifier = new ClientNotifier(bigDict)
   validator = new Validator(db, bigDict)
   validate = validator.validate
-  dataParser = new DataParser(bigDict, clientNotifier, validate)
+  dataParser = new DataParser(bigDict, clientNotifier, validator)
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
@@ -58,7 +58,8 @@ exports.start = (attrs) ->
             path: path
             obj: obj
 
-          dataParser.parse(spark, data)
+          skipValidation = validator.accessesMeta path
+          dataParser.parse(spark, data, skipValidation)
 
         # After the loop, delete all commands for this connected id
         log "Commands fired, now deleting queue"

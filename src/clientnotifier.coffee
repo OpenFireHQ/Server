@@ -17,6 +17,30 @@ class ClientNotifier
           name: null
         }, no, yes)
       , omitParentObject: yes)
+
+      obj = {}
+      obj[spark.id] = true
+
+      listenerPath = metaPath + "/listeners/value" + path #.replace(/\//gi, '_')
+
+      @bigDict.update(
+        path: listenerPath
+        obj: obj
+      )
+
+      obj[spark.id] = null
+
+      @bigDict.update(
+        path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/update" + listenerPath.replace(/\//gi, '_')
+        obj:
+          action: 'update'
+          path: listenerPath
+          obj: JSON.stringify(obj)
+
+        callback: ->
+
+      )
+
     else if type is 'child' or type is 'remote_child'
       @bigDict.get(path, (obj) ->
         for k of obj

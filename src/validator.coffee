@@ -1,10 +1,17 @@
 class Validator
   constructor: (@db, @bigDict) ->
 
-  validate: (data, cb) ->
+  accessesMeta: (path) ->
+    return path.startsWith("/_meta")
+
+  validate: (data, skipValidation, cb) ->
     { obj, path } = data
 
-    if path.startsWith("/_meta")
+    if skipValidation
+      cb()
+      return
+
+    if @accessesMeta path
       log "[Security] Someone tried to access the meta table from the client-side! Blocked."
       return
 
