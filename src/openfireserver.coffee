@@ -24,10 +24,13 @@ exports.start = (attrs) ->
 
   Db = require("./dbs/#{attrs.db}")
   db = new Db()
+  DataParser = require "./dataparser"
+
   bigDict = new BigDict(db)
   clientNotifier = new ClientNotifier(bigDict)
   validator = new Validator(db, bigDict)
   validate = validator.validate
+  dataParser = new DataParser(bigDict, clientNotifier, validate)
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
@@ -47,73 +50,33 @@ exports.start = (attrs) ->
       commands = obj?['afterDisconnect']?[spark.id]
       if commands
         for k of commands
-          log "Command: ", commands[k]
-    )
+          log "Running Command: ", commands[k]
+          { action, path, obj } = commands[k]
+          obj = JSON.parse obj
+          data =
+            action: action
+            path: path
+            obj: obj
+
+          dataParser.parse(spark, data)
+
+        # After the loop, delete all commands for this connected id
+        deleteObj = { }
+        deleteObj[spark.id] = null
+        bigDict.set(
+          path: metaPath + "/commandQueue/afterDisconnect"
+          object: deleteObj
+        )
+
+    , omitParentObject: yes)
+
   primus.on "connection", (spark) ->
     log "We have a caller!"
     log "connection was made from", spark.address
     log "connection id", spark.id
 
     spark.on "data", (data) ->
-      log "received data from the client", data
-
-      { action } = data
-
-      if action is 'unsub'
-        { path, type } = data
-        spark.leave type + ":" + path
-
-      else if action is 'sub'
-        { path, type } = data
-        validate data, ->
-          clientNotifier.sub(spark, path, type)
-
-      else if action is 'update'
-        { obj, path } = data
-        validate data, ->
-          bigDict.handleNotifications(
-            path: path
-            obj: obj
-            callback: (note) ->
-              clientNotifier.notify(spark, note)
-          )
-          bigDict.update(
-            path: path
-            obj: obj
-            callback: ->
-
-          )
-
-      else if action is 'set'
-        { obj, path } = data
-        validate data, ->
-          bigDict.handleNotifications(
-            path: path
-            obj: obj
-            callback: (note) ->
-              clientNotifier.notify(spark, note)
-          )
-          bigDict.set(
-            path: path
-            obj: obj
-            callback: ->
-
-          )
-
-      else if action is 'afterDisconnect:set'
-        { obj, path } = data
-        #No validation here, because nothing really happens, and validation can change over time
-        #validation will happen at the moment the commands will be executed
-        bigDict.set(
-          path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + path
-          obj:
-            action: 'set'
-            path: path
-            obj: obj
-
-          callback: ->
-
-        )
+      dataParser.parse(spark, data)
 
   exports.bigDict = bigDict
   return attrs
