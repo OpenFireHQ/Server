@@ -41,6 +41,14 @@ exports.start = (attrs) ->
     console.error "Something horrible has happened", err.stack
     return
   primus.save(__dirname + '/realtime_engine.js')
+  primus.on "disconnection", (spark) ->
+    bigDict.get(metaPath + "/commandQueue/afterDisconnect/" + spark.id, (obj) =>
+      log "A client just disconnected, possible disconnection queue: " + displayObject obj
+      commands = obj?['afterDisconnect']?[spark.id]
+      if commands
+        for k of commands
+          log "Command: ", commands[k]
+    )
   primus.on "connection", (spark) ->
     log "We have a caller!"
     log "connection was made from", spark.address
@@ -92,4 +100,20 @@ exports.start = (attrs) ->
 
           )
 
+      else if action is 'afterDisconnect:set'
+        { obj, path } = data
+        #No validation here, because nothing really happens, and validation can change over time
+        #validation will happen at the moment the commands will be executed
+        bigDict.set(
+          path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + path
+          obj:
+            action: 'set'
+            path: path
+            obj: obj
+
+          callback: ->
+
+        )
+
+  exports.bigDict = bigDict
   return attrs

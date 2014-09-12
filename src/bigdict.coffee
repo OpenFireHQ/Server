@@ -32,29 +32,38 @@ class BigDict
         callback() if callback?
     )
 
-  get: (path, callback, _meta = { callback: {} }) ->
+  get: (path, callback, _meta = {}) ->
     log "BigDict, getting: ", path if not _meta.traversedBackOnce?
     @db.getStartingWithPath(path, (objs) =>
-      log "low level objs: ", displayObject objs
+      log "getStartingWithPath(#{path}) objs: ", objs
+      parts = path.split("/")
+      lastPath = parts.slice(parts.length - 1, parts.length).join("/")
+
       if objs is null
         # Either deleted or we have to get a step back so we can fetch the object
-        parts = path.split("/")
         previous = parts.slice(0, parts.length -  1).join("/")
-        lastPath = parts.slice(parts.length -  1, parts.length).join("/")
 
-        if not _meta.traversedBackOnce?
+        if not _meta.traversedBackOnce? and parts.length > 2
           _meta.objectName = lastPath
           _meta.traversedBackOnce = yes
           @get(previous, callback, _meta)
         else
           log "Value: " + displayObject(obj)
-          callback(null, _meta.callback)
+          callback(null)
       else
         # Callback immediatly
         obj = @normalizeData(objs)
         log "Get result: ", displayObject obj
+
+        if obj is null
+          callback null
+          return
+
+        if _meta.omitParentObject and typeof obj is 'object'
+          _meta.objectName = parts[2]
+
         if _meta.objectName?
-          callback obj[_meta.objectName]
+          callback(obj[_meta.objectName] or null)
         else
           callback obj
     )
@@ -91,7 +100,7 @@ class BigDict
         el.length isnt 0
       )
       objToWorkWith = result
-      lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+      lastPath = parts.slice(parts.length - 1, parts.length).join("/")
       firstPath = parts[0]
       for i in [0..parts.length - 1]
         part = parts[i]

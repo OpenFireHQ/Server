@@ -1,5 +1,7 @@
 class ClientNotifier
 
+  pathEditor = require 'path'
+
   constructor: (@bigDict) ->
 
   sub: (spark, path, type) ->
@@ -7,9 +9,14 @@ class ClientNotifier
     spark.join room
 
     if type is 'value'
-      @bigDict.get(path, (obj) ->
-        spark.write(action: 'data', path: path, type: type, obj: obj)
-      )
+      @bigDict.get(path, (obj) =>
+        @notify(spark, {
+          type: type
+          path: path
+          obj: obj
+          name: null
+        }, no)
+      , omitParentObject: yes)
     else if type is 'child' or type is 'remote_child'
       @bigDict.get(path, (obj) ->
         for k of obj
@@ -17,7 +24,7 @@ class ClientNotifier
             spark.write(action: 'data', path: path, type: type, obj: obj[k][k2], name: k2)
       )
 
-  notify: (spark, attrs) ->
+  notify: (spark, attrs, supportRemote = yes) ->
     { type, path, obj, name } = attrs
     room = type + ":" + path
     note = action: 'data', path: path, type: type, obj: obj, name: name

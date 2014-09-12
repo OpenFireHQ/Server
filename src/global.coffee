@@ -22,3 +22,5 @@ global.displayObject = (obj) ->
       return 'null'
     else
       return typeof obj
+
+global.metaPath = "/_meta"
