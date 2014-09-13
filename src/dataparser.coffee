@@ -34,7 +34,9 @@ class DataParser
           path: path
           obj: obj
           callback: ->
-
+            bigDict.triggerValueNotifications(path: path, callback: (note) ->
+              clientNotifier.notify(spark, note, no, no)
+            )
         )
 
     else if action is 'set'
@@ -50,7 +52,9 @@ class DataParser
           path: path
           obj: obj
           callback: ->
-            
+            bigDict.triggerValueNotifications(path: path, callback: (note) ->
+              clientNotifier.notify(spark, note)
+            )
         )
 
     else if action is 'afterDisconnect:update'

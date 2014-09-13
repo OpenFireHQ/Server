@@ -27,10 +27,6 @@ exports.start = (attrs) ->
   DataParser = require "./dataparser"
 
   bigDict = new BigDict(db)
-  clientNotifier = new ClientNotifier(bigDict)
-  validator = new Validator(db, bigDict)
-  validate = validator.validate
-  dataParser = new DataParser(bigDict, clientNotifier, validator)
 
   primus = new Primus(server, {
     global: 'OFRealtimeEngine'
@@ -39,6 +35,11 @@ exports.start = (attrs) ->
     transformer: 'engine.io'
   })
   primus.use('rooms', Rooms)
+
+  clientNotifier = new ClientNotifier(bigDict, primus)
+  validator = new Validator(db, bigDict)
+  validate = validator.validate
+  dataParser = new DataParser(bigDict, clientNotifier, validator)
 
   primus.on "error", error = (err) ->
     console.error "Something horrible has happened", err.stack
@@ -50,7 +51,6 @@ exports.start = (attrs) ->
       commands = obj?['afterDisconnect']?[spark.id]
       if commands
         for k of commands
-          log "Running Command: ", commands[k]
           { action, path, obj } = commands[k]
           obj = JSON.parse obj
           data =
@@ -58,6 +58,7 @@ exports.start = (attrs) ->
             path: path
             obj: obj
 
+          log "Running Command: ", data
           skipValidation = validator.accessesMeta path
           dataParser.parse(spark, data, skipValidation)
 

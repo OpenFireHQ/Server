@@ -2,7 +2,7 @@ class ClientNotifier
 
   pathEditor = require 'path'
 
-  constructor: (@bigDict) ->
+  constructor: (@bigDict, @primus) ->
 
   sub: (spark, path, type) ->
     room = type + ":" + path
@@ -21,7 +21,7 @@ class ClientNotifier
       obj = {}
       obj[spark.id] = true
 
-      listenerPath = metaPath + "/listeners/value" + path #.replace(/\//gi, '_')
+      listenerPath = metaPath + "/listeners/value" + path
 
       @bigDict.update(
         path: listenerPath
@@ -59,12 +59,12 @@ class ClientNotifier
       spark.write note
     else
       log "Notifying all clients in room #{room} with data: #{displayObject note}"
-      spark.room(room).write note
+      @primus.room(room).write note
 
       if supportRemote
         # Create one for remote notes only as well
         note.type = "remote_" + note.type
         room = note.type + ":" + path
-        spark.room(room).except(spark.id).write note
+        @primus.room(room).except(spark.id).write note
 
 module.exports = ClientNotifier

@@ -173,17 +173,23 @@ class BigDict
 
   triggerValueNotifications: (attrs) ->
 
-    { path } = attrs
-
+    { path, callback } = attrs
+    
     valueListener = "/_meta/listeners/value"
 
     # Get a list of paths that relate to this
     @db.getPathNamesStartingWithPath(valueListener + path, (paths) =>
+      log "triggerValueNotifications, paths starting with '#{valueListener + path}': ", paths
       if paths isnt null
         for path in paths
           path = path.substring(valueListener.length, path.length)
           @get(path, (obj) ->
-
+            callback(
+              type: 'value'
+              path: path
+              name: null
+              obj: obj
+            )
           , omitParentObject: yes)
     )
 
@@ -229,6 +235,7 @@ class BigDict
           bulk[k] = obj[k]
 
       if !isEmpty(bulk)
+        cbCount++
         @db.set(
           obj: bulk
           path: path
