@@ -6,9 +6,3 @@ describe 'OpenFireServer', ->
       port: 5454
       db: 'memory'
     )
-
-describe 'BigDict Normalizer', ->
-  it "Should normalize data", ->
-    server.bigDict.normalizeData(
-      
-    )
