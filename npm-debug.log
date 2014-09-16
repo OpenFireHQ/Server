@@ -1,0 +1,136 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'publish', '--force' ]
+2 info using npm@1.4.23
+3 info using node@v0.10.31
+4 warn using --force I sure hope you know what you are doing.
+5 verbose publish [ '.' ]
+6 verbose cache add [ '.', null ]
+7 verbose cache add name=undefined spec="." args=[".",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: '.',
+8 verbose parsed url   path: '.',
+8 verbose parsed url   href: '.' }
+9 silly lockFile 3a52ce78- .
+10 verbose lock . /Users/Pet0r/.npm/3a52ce78-.lock
+11 verbose tar pack [ '/Users/Pet0r/.npm/openfire/0.0.1/package.tgz', '.' ]
+12 verbose tarball /Users/Pet0r/.npm/openfire/0.0.1/package.tgz
+13 verbose folder .
+14 info prepublish openfire@0.0.1
+15 silly lockFile 1f1177db-tar tar://.
+16 verbose lock tar://. /Users/Pet0r/.npm/1f1177db-tar.lock
+17 silly lockFile 37cfc1d9-r-npm-openfire-0-0-1-package-tgz tar:///Users/Pet0r/.npm/openfire/0.0.1/package.tgz
+18 verbose lock tar:///Users/Pet0r/.npm/openfire/0.0.1/package.tgz /Users/Pet0r/.npm/37cfc1d9-r-npm-openfire-0-0-1-package-tgz.lock
+19 silly lockFile 1f1177db-tar tar://.
+20 silly lockFile 1f1177db-tar tar://.
+21 silly lockFile 37cfc1d9-r-npm-openfire-0-0-1-package-tgz tar:///Users/Pet0r/.npm/openfire/0.0.1/package.tgz
+22 silly lockFile 37cfc1d9-r-npm-openfire-0-0-1-package-tgz tar:///Users/Pet0r/.npm/openfire/0.0.1/package.tgz
+23 silly lockFile e63ee670-Pet0r-npm-openfire-0-0-1-package /Users/Pet0r/.npm/openfire/0.0.1/package
+24 verbose lock /Users/Pet0r/.npm/openfire/0.0.1/package /Users/Pet0r/.npm/e63ee670-Pet0r-npm-openfire-0-0-1-package.lock
+25 silly lockFile e63ee670-Pet0r-npm-openfire-0-0-1-package /Users/Pet0r/.npm/openfire/0.0.1/package
+26 silly lockFile e63ee670-Pet0r-npm-openfire-0-0-1-package /Users/Pet0r/.npm/openfire/0.0.1/package
+27 silly lockFile 3a52ce78- .
+28 silly lockFile 3a52ce78- .
+29 silly publish { name: 'openfire',
+29 silly publish   preferGlobal: true,
+29 silly publish   version: '0.0.1',
+29 silly publish   description: 'Backend Server & Simple CLI tool for the OpenFire Project',
+29 silly publish   homepage: 'https://github.com/peterwilli/openfireserver',
+29 silly publish   repository:
+29 silly publish    { type: 'git',
+29 silly publish      url: 'https://github.com/peterwilli/openfireserver.git' },
+29 silly publish   scripts: { test: 'grunt test' },
+29 silly publish   config:
+29 silly publish    { blanket:
+29 silly publish       { loader: './node-loaders/coffee-script',
+29 silly publish         'data-cover-only': [Object],
+29 silly publish         'data-cover-never': 'node_modules' } },
+29 silly publish   bin: { openfire: './src/openfire.js' },
+29 silly publish   main: './dist/openfireserver',
+29 silly publish   author:
+29 silly publish    { name: 'Peter Willemsen',
+29 silly publish      email: 'peter@codebuffet.co',
+29 silly publish      url: 'https://github.com/peterwilli' },
+29 silly publish   license: 'GPLv2',
+29 silly publish   devDependencies:
+29 silly publish    { grunt: '~0.4.4',
+29 silly publish      'load-grunt-tasks': '^0.4.0',
+29 silly publish      'grunt-mocha-cov': '^0.2.1',
+29 silly publish      should: '^3.2.0-beta1',
+29 silly publish      'grunt-contrib-coffee': '^0.10.1',
+29 silly publish      'grunt-coffeelint': '0.0.10',
+29 silly publish      blanket: '^1.1.5',
+29 silly publish      'grunt-contrib-watch': '^0.6.1',
+29 silly publish      'coffee-script': '~1.7.1',
+29 silly publish      'grunt-contrib-clean': '^0.5.0',
+29 silly publish      'grunt-bump': '0.0.13' },
+29 silly publish   dependencies:
+29 silly publish    { 'coffee-script': '^1.8.0',
+29 silly publish      colors: '^0.6.2',
+29 silly publish      'engine.io': '^1.3.1',
+29 silly publish      minimist: '^1.1.0',
+29 silly publish      'node.extend': '^1.1.2',
+29 silly publish      primus: 'git+https://peterwilli@github.com/peterwilli/primus.git',
+29 silly publish      'primus-rooms': '^3.1.0',
+29 silly publish      sockjs: '^0.3.9',
+29 silly publish      ws: '^0.4.32' },
+29 silly publish   readme: '# OpenFire Server [![Build Status](https://travis-ci.org/OpenFireHQ/Server.svg?branch=master)](https://travis-ci.org/OpenFireHQ/Server)\n\n> Server for the OpenFire Project\n\n### What is OpenFire?\n\nOpenFire is an Open Source Database & Backend Engine. Use our JavaScript SDK to connect your web services directly to the server, and interact with your objects immediatly and realtime!\n\n### Getting started\n\nThis guide is for developers who want to get started immediatly.\n\n**Install OpenFire**\n```bash\nnpm install -g openfire\n```\nIf that doesn\'t work, try append sudo to run installation as root.\n\n**Start hacking!**\nThis command will launch a in-memory server, with zero dependencies.\nKeep in mind that when you close this server the data is gone.\n```bash\nopenfire hack\n```\n\nIt\'s that simple :) Now let\'s put our db to work, shall we?\nThe following example is a realtime visitor-counter, and demonstrates various functions available in the OpenFire SDK.\n\nCreate a file with a `.html` extension, and paste the following code.\nThen just open the file on a few tabs, maybe even on your mobile device and watch the counter jump!\n```html\n<!DOCTYPE html>\n<html>\n  <title>Visitor Counter</title>\n  <body>\n    <h3>Welcome! There are currently &nbsp;<span id="counter"></span>&nbsp; People watching this site!</h3>\n  </body>\n  <script src="http://openfi.re/openfire.js"></script>\n  <script>\n    // Intialize our DB\n    // getting-started is our namespace for this example project\n    var db = new OpenFire("http://localhost:5454/getting-started");\n\n    // connections is where we drop our users connection data in\n    var connections = db.child("connections");\n\n    // connectedChild is the unique object\n    // we hold the current connection for this client in\n    var connectedChild = null;\n\n    // This function get\'s called every time the connections object changes.\n    var connectionsChange = function(sn) {\n        if (sn.val != null) {\n            // Get the count\n            var count = sn.childCount();\n\n            // Set the count to our counter in HTML\n            document.getElementById("counter").innerHTML = count;\n        }\n    };\n\n    // Hook connectionsChange event to "value"\n    // The server will call this to us each time the value of connections change.\n    connections.on("value", connectionsChange);\n    connections.on("connect", function() {\n        // On connect, use push to create a new child inside connections\n        // And set it to true to mark the connected state\n        connectedChild = connections.push();\n        connectedChild.set(true);\n\n        // Use setAfterDisconnect to make sure that the value gets deleted\n        // (set to null equals deletion in OpenFire)\n        // to guarantee the counter only count our current visitors\n        connectedChild.setAfterDisconnect(null);\n    });\n  </script>\n</html>\n```\n\nAs you can see it\'s not that hard to create fairly complex dynamic web apps with OpenFire.\n**Currently OpenFire is in beta, and I\'ll try to make better documentation in the next week**!\n\n\n### Testing\n\nwatches for file changes and reruns tests each time\n```bash\n  $ grunt watch\n```\n\nruns spec tests\n```bash\n  $ grunt test  \n```\n\nproduces coverage report (needs explicit piping)\n```bash\n  $ grunt cov\n```\n\n## License\n\nGPLv2\n',
+29 silly publish   readmeFilename: 'README.md',
+29 silly publish   gitHead: 'b6dd9ff8e3ec823e9498c154368b7e869b330a9c',
+29 silly publish   bugs: { url: 'https://github.com/peterwilli/openfireserver/issues' },
+29 silly publish   _id: 'openfire@0.0.1',
+29 silly publish   _shasum: '9118a7c1d481b8383533757c7d67cefc292879a0',
+29 silly publish   _from: '.' }
+30 verbose request where is /openfire
+31 verbose request registry https://registry.npmjs.org/
+32 verbose request id f5b2aa0c6b9101f5
+33 verbose url raw /openfire
+34 verbose url resolving [ 'https://registry.npmjs.org/', './openfire' ]
+35 verbose url resolved https://registry.npmjs.org/openfire
+36 verbose request where is https://registry.npmjs.org/openfire
+37 info trying registry request attempt 1 at 16:55:24
+38 http PUT https://registry.npmjs.org/openfire
+39 http 403 https://registry.npmjs.org/openfire
+40 verbose headers { date: 'Tue, 16 Sep 2014 14:55:26 GMT',
+40 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R14B04)',
+40 verbose headers   'content-type': 'application/json',
+40 verbose headers   'cache-control': 'max-age=60',
+40 verbose headers   'content-length': '7820',
+40 verbose headers   'accept-ranges': 'bytes',
+40 verbose headers   via: '1.1 varnish',
+40 verbose headers   'x-served-by': 'cache-ams4123-AMS',
+40 verbose headers   'x-cache': 'MISS',
+40 verbose headers   'x-cache-hits': '0',
+40 verbose headers   'x-timer': 'S1410879324.803090,VS0,VE1441',
+40 verbose headers   'keep-alive': 'timeout=10, max=50',
+40 verbose headers   connection: 'Keep-Alive' }
+41 error publish Failed PUT 403
+42 error Error: forbidden cannot modify pre-existing version: 0.0.1
+42 error old={"name":"openfire","version":"0.0.1","description":"Backend Server & Simple CLI tool for the OpenFire Project","homepage":"https://github.com/peterwilli/openfireserver","repository":{"type":"git","url":"https://github.com/peterwilli/openfireserver.git"},"scripts":{"test":"grunt test"},"config":{"blanket":{"loader":"./node-loaders/coffee-script","data-cover-only":["src"],"data-cover-never":"node_modules"}},"bin":{"openfire":"./src/openfire.js"},"main":"./dist/openfireserver","author":{"name":"Peter Willemsen","email":"peter@codebuffet.co","url":"https://github.com/peterwilli"},"license":"GPLv2","devDependencies":{"grunt":"~0.4.4","load-grunt-tasks":"^0.4.0","grunt-mocha-cov":"^0.2.1","should":"^3.2.0-beta1","grunt-contrib-coffee":"^0.10.1","grunt-coffeelint":"0.0.10","blanket":"^1.1.5","grunt-contrib-watch":"^0.6.1","coffee-script":"~1.7.1","grunt-contrib-clean":"^0.5.0","grunt-bump":"0.0.13"},"dependencies":{"coffee-script":"^1.8.0","colors":"^0.6.2","engine.io":"^1.3.1","minimist":"^1.1.0","node.extend":"^1.1.2","primus":"git+https://peterwilli@github.com/peterwilli/primus.git","primus-rooms":"^3.1.0","sockjs":"^0.3.9","ws":"^0.4.32"},"gitHead":"c566642b22402a2f5e8b69e975c6edaad4b4729a","bugs":{"url":"https://github.com/peterwilli/openfireserver/issues"},"_id":"openfire@0.0.1","_shasum":"4d61ca2d4e4eeb401d6e254ed3d3194631cbacc2","_from":".","_npmVersion":"1.4.23","_npmUser":{"name":"peterwilli","email":"peter@codebuffet.co"},"maintainers":[{"name":"peterwilli","email":"peter@codebuffet.co"}],"dist":{"shasum":"4d61ca2d4e4eeb401d6e254ed3d3194631cbacc2","tarball":"http://registry.npmjs.org/openfire/-/openfire-0.0.1.tgz"}}
+42 error new={"name":"openfire","preferGlobal":true,"version":"0.0.1","description":"Backend Server & Simple CLI tool for the OpenFire Project","homepage":"https://github.com/peterwilli/openfireserver","repository":{"type":"git","url":"https://github.com/peterwilli/openfireserver.git"},"scripts":{"test":"grunt test"},"config":{"blanket":{"loader":"./node-loaders/coffee-script","data-cover-only":["src"],"data-cover-never":"node_modules"}},"bin":{"openfire":"./src/openfire.js"},"main":"./dist/openfireserver","author":{"name":"Peter Willemsen","email":"peter@codebuffet.co","url":"https://github.com/peterwilli"},"license":"GPLv2","devDependencies":{"grunt":"~0.4.4","load-grunt-tasks":"^0.4.0","grunt-mocha-cov":"^0.2.1","should":"^3.2.0-beta1","grunt-contrib-coffee":"^0.10.1","grunt-coffeelint":"0.0.10","blanket":"^1.1.5","grunt-contrib-watch":"^0.6.1","coffee-script":"~1.7.1","grunt-contrib-clean":"^0.5.0","grunt-bump":"0.0.13"},"dependencies":{"coffee-script":"^1.8.0","colors":"^0.6.2","engine.io":"^1.3.1","minimist":"^1.1.0","node.extend":"^1.1.2","primus":"git+https://peterwilli@github.com/peterwilli/primus.git","primus-rooms":"^3.1.0","sockjs":"^0.3.9","ws":"^0.4.32"},"readme":"# OpenFire Server [![Build Status](https://travis-ci.org/OpenFireHQ/Server.svg?branch=master)](https://travis-ci.org/OpenFireHQ/Server)\u000a\u000a> Server for the OpenFire Project\u000a\u000a### What is OpenFire?\u000a\u000aOpenFire is an Open Source Database & Backend Engine. Use our JavaScript SDK to connect your web services directly to the server, and interact with your objects immediatly and realtime!\u000a\u000a### Getting started\u000a\u000aThis guide is for developers who want to get started immediatly.\u000a\u000a**Install OpenFire**\u000a```bash\u000anpm install -g openfire\u000a```\u000aIf that doesn't work, try append sudo to run installation as root.\u000a\u000a**Start hacking!**\u000aThis command will launch a in-memory server, with zero dependencies.\u000aKeep in mind that when you close this server the data is gone.\u000a```bash\u000aopenfire hack\u000a```\u000a\u000aIt's that simple :) Now let's put our db to work, shall we?\u000aThe following example is a realtime visitor-counter, and demonstrates various functions available in the OpenFire SDK.\u000a\u000aCreate a file with a `.html` extension, and paste the following code.\u000aThen just open the file on a few tabs, maybe even on your mobile device and watch the counter jump!\u000a```html\u000a<!DOCTYPE html>\u000a<html>\u000a  <title>Visitor Counter</title>\u000a  <body>\u000a    <h3>Welcome! There are currently &nbsp;<span id=\"counter\"></span>&nbsp; People watching this site!</h3>\u000a  </body>\u000a  <script src=\"http://openfi.re/openfire.js\"></script>\u000a  <script>\u000a    // Intialize our DB\u000a    // getting-started is our namespace for this example project\u000a    var db = new OpenFire(\"http://localhost:5454/getting-started\");\u000a\u000a    // connections is where we drop our users connection data in\u000a    var connections = db.child(\"connections\");\u000a\u000a    // connectedChild is the unique object\u000a    // we hold the current connection for this client in\u000a    var connectedChild = null;\u000a\u000a    // This function get's called every time the connections object changes.\u000a    var connectionsChange = function(sn) {\u000a        if (sn.val != null) {\u000a            // Get the count\u000a            var count = sn.childCount();\u000a\u000a            // Set the count to our counter in HTML\u000a            document.getElementById(\"counter\").innerHTML = count;\u000a        }\u000a    };\u000a\u000a    // Hook connectionsChange event to \"value\"\u000a    // The server will call this to us each time the value of connections change.\u000a    connections.on(\"value\", connectionsChange);\u000a    connections.on(\"connect\", function() {\u000a        // On connect, use push to create a new child inside connections\u000a        // And set it to true to mark the connected state\u000a        connectedChild = connections.push();\u000a        connectedChild.set(true);\u000a\u000a        // Use setAfterDisconnect to make sure that the value gets deleted\u000a        // (set to null equals deletion in OpenFire)\u000a        // to guarantee the counter only count our current visitors\u000a        connectedChild.setAfterDisconnect(null);\u000a    });\u000a  </script>\u000a</html>\u000a```\u000a\u000aAs you can see it's not that hard to create fairly complex dynamic web apps with OpenFire.\u000a**Currently OpenFire is in beta, and I'll try to make better documentation in the next week**!\u000a\u000a\u000a### Testing\u000a\u000awatches for file changes and reruns tests each time\u000a```bash\u000a  $ grunt watch\u000a```\u000a\u000aruns spec tests\u000a```bash\u000a  $ grunt test  \u000a```\u000a\u000aproduces coverage report (needs explicit piping)\u000a```bash\u000a  $ grunt cov\u000a```\u000a\u000a## License\u000a\u000aGPLv2\u000a","readmeFilename":"README.md","gitHead":"b6dd9ff8e3ec823e9498c154368b7e869b330a9c","bugs":{"url":"https://github.com/peterwilli/openfireserver/issues"},"_id":"openfire@0.0.1","_shasum":"9118a7c1d481b8383533757c7d67cefc292879a0","_from":".","_npmVersion":"1.4.23","_npmUser":{"name":"peterwilli","email":"peter@codebuffet.co"},"maintainers":[{"name":"peterwilli","email":"peter@codebuffet.co"}],"dist":{"shasum":"9118a7c1d481b8383533757c7d67cefc292879a0","tarball":"http://registry.npmjs.org/openfire/-/openfire-0.0.1.tgz"}}: openfire
+42 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:300:14)
+42 error     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:238:65)
+42 error     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:123:22)
+42 error     at Request.emit (events.js:98:17)
+42 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:893:14)
+42 error     at Request.emit (events.js:117:20)
+42 error     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:844:12)
+42 error     at IncomingMessage.emit (events.js:117:20)
+42 error     at _stream_readable.js:943:16
+42 error     at process._tickCallback (node.js:419:13)
+43 error If you need help, you may report this *entire* log,
+43 error including the npm and node versions, at:
+43 error     <http://github.com/npm/npm/issues>
+44 error System Darwin 13.3.0
+45 error command "node" "/usr/local/bin/npm" "publish" "--force"
+46 error cwd /Users/Pet0r/Documents/Projects/OpenFire/OpenFireServer
+47 error node -v v0.10.31
+48 error npm -v 1.4.23
+49 verbose exit [ 1, true ]
