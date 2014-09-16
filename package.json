@@ -1,6 +1,6 @@
 {
   "name": "openfire",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Backend Server & Simple CLI tool for the OpenFire Project",
   "homepage": "https://github.com/peterwilli/openfireserver",
   "repository": {
