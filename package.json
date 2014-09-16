@@ -1,12 +1,12 @@
 {
   "name": "openfire",
   "preferGlobal": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Backend Server & Simple CLI tool for the OpenFire Project",
-  "homepage": "https://github.com/peterwilli/openfireserver",
+  "homepage": "http://openfi.re",
   "repository": {
     "type": "git",
-    "url": "https://github.com/peterwilli/openfireserver.git"
+    "url": "https://github.com/OpenFireHQ/Server"
   },
   "scripts": {
     "test": "grunt test"
@@ -27,7 +27,7 @@
   "author": {
     "name": "Peter Willemsen",
     "email": "peter@codebuffet.co",
-    "url": "https://github.com/peterwilli"
+    "url": "http://codebuffet.co"
   },
   "license": "GPLv2",
   "devDependencies": {
