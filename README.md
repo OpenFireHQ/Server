@@ -98,6 +98,21 @@ produces coverage report (needs explicit piping)
   $ grunt cov
 ```
 
+### Roadmap
+
+The reason for me releasing this project already is to gain initial feedback and to see if more people like the idea.
+
+OpenFire is definitely **not** production ready yet. It lacks certain features for running a stable server, like wrappers for a proper database like MongoDB or Redis, also there are no security settings yet for you to configure.
+
+I’m planning to use OpenFire long-term for my next projects and can’t wait to see it production ready.
+The following features are planned short-term:
+
+ – Database support (I start first with MongoDB I think, as it’s the most general-purpose database suitable for this kind of work)
+ 
+ – Offline compatibility in the SDK
+ 
+ – Security (validate data before storing in the database)
+
 ## License
 
 GPLv2
