@@ -1,7 +1,7 @@
 {
   "name": "openfire",
   "preferGlobal": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Backend Server & Simple CLI tool for the OpenFire Project",
   "homepage": "http://openfi.re",
   "repository": {
@@ -51,7 +51,6 @@
     "node.extend": "^1.1.2",
     "primus": "git+https://peterwilli@github.com/peterwilli/primus.git",
     "primus-rooms": "^3.1.0",
-    "sockjs": "^0.3.9",
     "ws": "^0.4.32"
   }
 }
