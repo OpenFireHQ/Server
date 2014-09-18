@@ -4,6 +4,7 @@ Rooms = require('primus-rooms')
 BigDict = require('./bigdict')
 ClientNotifier = require './clientnotifier'
 Validator = require './validator'
+ServerInfo = require './serverinfo'
 extend = require('node.extend')
 
 require "./global"
@@ -18,6 +19,7 @@ exports.start = (attrs) ->
   if !attrs.logging
     global.log = (msg) ->
       # To the bitbucket!
+
   server = http.createServer((req, res) ->
 
   ).listen attrs.port, attrs.host
@@ -81,5 +83,6 @@ exports.start = (attrs) ->
     spark.on "data", (data) ->
       dataParser.parse(spark, data)
 
-  exports.bigDict = bigDict
-  return attrs
+  runningServer = new ServerInfo(attrs, bigDict)
+
+  return runningServer

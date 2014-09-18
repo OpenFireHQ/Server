@@ -26,17 +26,18 @@ commands =
     warn: "Data will be deleted when the server is shut-down"
     run: ->
       obj = db: 'memory', logging: yes
-      for k of args 
+      for k of args
         continue if k is '_'
         obj[k] = args[k]
-      attrs = server.start(obj)
-      showInfo attrs
+
+      runningServer = server.start(obj)
+      showInfo runningServer.attrs
 
 showInfo = (attrs) ->
   { port, host } = attrs
   console.log "Running OpenFire Server on port #{port}"
   console.log "Connect to this DB using the OpenFire SDK:"
-  console.log "    #{"db"} = #{"new".cyan} #{"OpenFire".yellow}(#{"\"http://127.0.0.1:5454/db\"".green});"
+  console.log "    #{"db"} = #{"new".cyan} #{"OpenFire".yellow}(#{"\"http://127.0.0.1:#{port}/db\"".green});"
   console.log "You can replace /db with any namespace you want"
 
 showCommands = ->

@@ -66,4 +66,3 @@ module.exports = (grunt) ->
       dist:
         files:
           'dist/openfireserver.js' : 'src/**/*.coffee'
-
