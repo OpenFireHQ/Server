@@ -34,8 +34,9 @@ class DataParser
           path: path
           obj: obj
           callback: ->
+            log "Update #{path} finished"
             bigDict.triggerValueNotifications(path: path, callback: (note) ->
-              clientNotifier.notify(spark, note, no, no)
+              clientNotifier.notify(spark, note)
             )
         )
 

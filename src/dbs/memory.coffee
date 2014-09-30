@@ -53,6 +53,16 @@ class Memory extends basedb
     else
       callback result
 
+  pathExists: (thisPath, callback) ->
+    for path of db
+      if path is thisPath
+        log "pathExists(#{thisPath}): yes"
+        callback yes
+        break
+        
+    log "pathExists(#{thisPath}): no"
+    callback no
+
   get: (path, callback) ->
     obj = db[path]
     if obj?

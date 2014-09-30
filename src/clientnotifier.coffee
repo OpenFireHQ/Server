@@ -33,18 +33,14 @@ class ClientNotifier
       )
 
     if type is 'value'
-      @bigDict.get(path, (obj) =>
-        parts = path.split("/")
-        lastPath = parts.slice(parts.length - 1, parts.length).join("/")
-        loopTillPath(obj, lastPath, (name, obj) =>
-          @notify(spark, {
-            type: type
-            path: path
-            obj: obj
-            name: null
-          }, no, yes)
-        )
-      , omitParentObject: no)
+      @bigDict.get(path, (obj, name) =>
+        @notify(spark, {
+          type: type
+          path: path
+          obj: obj
+          name: name
+        }, no, yes)
+      , omitParentObject: yes)
 
       obj = {}
       obj[spark.id] = true

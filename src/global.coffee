@@ -14,7 +14,7 @@ unless typeof String::endsWith is "function"
     @indexOf(suffix, @length - suffix.length) isnt -1
 
 global.loopTillPath = (obj, name, cb) ->
-  log 'loopTillPath: obj type: ', (typeof obj)
+  log 'loopTillPath: ', obj, ' type: ', (typeof obj)
   if obj isnt null and typeof obj is 'object'
     for k of obj
       log "loopTillPath: must find #{name} in ", obj
@@ -25,7 +25,7 @@ global.loopTillPath = (obj, name, cb) ->
         loopTillPath(obj[k], name, cb)
         break
   else
-    cb(obj)
+    cb(name, obj)
 
 global.isEmpty = (obj) ->
   for prop of obj

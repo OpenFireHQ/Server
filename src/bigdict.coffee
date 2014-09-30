@@ -53,19 +53,20 @@ class BigDict
       else
         # Callback immediatly
         obj = @normalizeData(objs)
-        log "Get result: ", displayObject obj
 
         if obj is null
           callback null
           return
 
         if _meta.omitParentObject and typeof obj is 'object'
-          _meta.objectName = parts[2]
-
-        if _meta.objectName?
-          callback(obj[_meta.objectName] or null)
+          loopTillPath(obj, lastPath, (name, obj) ->
+            callback obj, name
+          )
         else
-          callback obj
+          if _meta.objectName?
+            callback(obj[_meta.objectName] or null)
+          else
+            callback obj
     )
 
   set: (attrs) ->
@@ -179,35 +180,23 @@ class BigDict
     { path, callback } = attrs
     valueListener = "/_meta/listeners/value"
     # Get a list of paths that relate to this
-    tk = (path_) =>
-      parts = path_.split("/")
-      rootPath = parts[1]
-      log "rootPath: " + rootPath
-      @db.getPathNamesStartingWithPath(valueListener, (paths) =>
-        log "triggerValueNotifications, paths starting with '#{valueListener}': ", paths
-        if paths isnt null
-          for path in paths
-            path = path.substring(valueListener.length, path.length)
-            parts = path.split("/")
-            lastPath = parts.slice(parts.length - 1, parts.length).join("/")
-            @get(path, (obj) ->
-              log "befloopTillPath: ", loopTillPath
-              loopTillPath(obj, lastPath, (name, obj) ->
-                callback(
-                  type: 'value'
-                  path: path
-                  name: null
-                  obj: obj
-                )
-              )
-            , omitParentObject: no)
-        else
-          parts = path_.split "/"
-          previous = parts.slice(0, parts.length - 1).join("/")
-          #tk previous
-        )
-
-    tk path
+    vp = valueListener
+    @db.getPathNamesStartingWithPath(vp, (paths) =>
+      if paths isnt null
+        for path_ in paths
+          path__ = path_.substring valueListener.length, path_.length
+          log "triggerValueNotifications: Path lookup,", path, " - ", path__
+          continue if not path__.startsWith path
+          @get(path__, (obj, name) ->
+            callback(
+              type: 'value'
+              path: path__
+              name: name
+              obj: obj
+            ) if obj
+          , omitParentObject: yes)
+    )
+    log "triggerValueNotifications, path: ", path
 
   edit: (attrs) ->
 
