@@ -165,34 +165,49 @@ class BigDict
               obj: newData[k]
             ) if callback?
 
+    valueListener = "/_meta/listeners/child_events" + path
+    log "valueListener: " + valueListener
     newData = @normalizeData [{path: path, obj: obj}]
-    @get(path, (oldData) ->
+    @get(path, (oldData) =>
       #log "loopKeysAsPaths: \nNew: #{displayObject  newData}\n Old: #{displayObject oldData}"
       loopKeysAsPaths(newData, oldData)
+      #@get()
     )
 
   triggerValueNotifications: (attrs) ->
 
     { path, callback } = attrs
-    
     valueListener = "/_meta/listeners/value"
-
     # Get a list of paths that relate to this
-    @db.getPathNamesStartingWithPath(valueListener + path, (paths) =>
-      log "triggerValueNotifications, paths starting with '#{valueListener + path}': ", paths
-      if paths isnt null
-        for path in paths
-          path = path.substring(valueListener.length, path.length)
-          @get(path, (obj) ->
-            callback(
-              type: 'value'
-              path: path
-              name: null
-              obj: obj
-            )
-          , omitParentObject: yes)
-    )
+    tk = (path_) =>
+      parts = path_.split("/")
+      rootPath = parts[1]
+      log "rootPath: " + rootPath
+      @db.getPathNamesStartingWithPath(valueListener, (paths) =>
+        log "triggerValueNotifications, paths starting with '#{valueListener}': ", paths
+        if paths isnt null
+          for path in paths
+            path = path.substring(valueListener.length, path.length)
+            parts = path.split("/")
+            lastPath = parts.slice(parts.length - 1, parts.length).join("/")
+            @get(path, (obj) ->
+              log "befloopTillPath: ", loopTillPath
+              loopTillPath(obj, lastPath, (name, obj) ->
+                callback(
+                  type: 'value'
+                  path: path
+                  name: null
+                  obj: obj
+                )
+              )
+            , omitParentObject: no)
+        else
+          parts = path_.split "/"
+          previous = parts.slice(0, parts.length - 1).join("/")
+          #tk previous
+        )
 
+    tk path
 
   edit: (attrs) ->
 

@@ -9,6 +9,24 @@ unless typeof String::startsWith is "function"
   String::startsWith = (str) ->
     @slice(0, str.length) is str
 
+unless typeof String::endsWith is "function"
+  String::endsWith = (suffix) ->
+    @indexOf(suffix, @length - suffix.length) isnt -1
+
+global.loopTillPath = (obj, name, cb) ->
+  log 'loopTillPath: obj type: ', (typeof obj)
+  if obj isnt null and typeof obj is 'object'
+    for k of obj
+      log "loopTillPath: must find #{name} in ", obj
+      if k is name
+        cb(k, obj[k])
+        break
+      else
+        loopTillPath(obj[k], name, cb)
+        break
+  else
+    cb(obj)
+
 global.isEmpty = (obj) ->
   for prop of obj
     return false  if obj.hasOwnProperty(prop)

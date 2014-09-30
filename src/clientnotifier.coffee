@@ -8,15 +8,43 @@ class ClientNotifier
     room = type + ":" + path
     spark.join room
 
+    if type is 'child_added'
+      listenerPath = metaPath + "/listeners/" + type + path
+
+      obj = {}
+      obj[spark.id] = true
+
+      @bigDict.update(
+        path: listenerPath
+        obj: obj
+      )
+
+      obj[spark.id] = null
+
+      @bigDict.update(
+        path: metaPath + "/commandQueue/afterDisconnect/" + spark.id + "/" + type + listenerPath.replace(/\//gi, '_')
+        obj:
+          action: 'update'
+          path: listenerPath
+          obj: JSON.stringify(obj)
+
+        callback: ->
+
+      )
+
     if type is 'value'
       @bigDict.get(path, (obj) =>
-        @notify(spark, {
-          type: type
-          path: path
-          obj: obj
-          name: null
-        }, no, yes)
-      , omitParentObject: yes)
+        parts = path.split("/")
+        lastPath = parts.slice(parts.length - 1, parts.length).join("/")
+        loopTillPath(obj, lastPath, (name, obj) =>
+          @notify(spark, {
+            type: type
+            path: path
+            obj: obj
+            name: null
+          }, no, yes)
+        )
+      , omitParentObject: no)
 
       obj = {}
       obj[spark.id] = true
@@ -42,10 +70,14 @@ class ClientNotifier
       )
 
     else if type is 'child' or type is 'remote_child'
+      parts = path.split("/")
+      lastPath = parts.slice(parts.length -  1, parts.length).join("/")
+
       @bigDict.get(path, (obj) ->
-        for k of obj
-          for k2 of obj[k]
-            spark.write(action: 'data', path: path, type: type, obj: obj[k][k2], name: k2)
+        loopTillPath(obj, lastPath, (name, obj) ->
+          for k of obj
+            spark.write(action: 'data', path: path, type: type, obj: obj[k], name: k)
+        )
       )
 
   notify: (spark, attrs, supportRemote = yes, justMe = no) ->
