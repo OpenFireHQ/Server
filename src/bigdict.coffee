@@ -35,7 +35,7 @@ class BigDict
   get: (path, callback, _meta = {}) ->
     log "BigDict, getting: ", path if not _meta.traversedBackOnce?
     @db.getStartingWithPath(path, (objs) =>
-      log "getStartingWithPath(#{path}) objs: ", objs
+      log "get: getStartingWithPath(#{path}) objs: ", objs
       parts = path.split("/")
       lastPath = parts.slice(parts.length - 1, parts.length).join("/")
 
@@ -54,17 +54,22 @@ class BigDict
         # Callback immediatly
         obj = @normalizeData(objs)
 
+        log "About to callback, meta:", _meta, "obj:", obj
+
         if obj is null
           callback null
           return
 
         if _meta.omitParentObject and typeof obj is 'object'
           loopTillPath(obj, lastPath, (name, obj) ->
-            callback obj, name
+            if _meta.objectName?
+              callback(obj[_meta.objectName] or null, _meta.objectName)
+            else
+              callback obj, name
           )
         else
           if _meta.objectName?
-            callback(obj[_meta.objectName] or null)
+            callback(obj[_meta.objectName] or null, _meta.objectName)
           else
             callback obj
     )
@@ -178,6 +183,7 @@ class BigDict
   triggerValueNotifications: (attrs) ->
 
     { path, callback } = attrs
+    log "triggerValueNotifications, path: ", path
     valueListener = "/_meta/listeners/value"
     # Get a list of paths that relate to this
     vp = valueListener
@@ -185,9 +191,18 @@ class BigDict
       if paths isnt null
         for path_ in paths
           path__ = path_.substring valueListener.length, path_.length
-          log "triggerValueNotifications: Path lookup,", path, " - ", path__
-          continue if not path__.startsWith path
+
+          log "triggerValueNotifications: Path lookup,", path, ".startsWith ", path__
+          if not path.startsWith path__
+            parts = path__.split("/")
+            previous = parts.slice(0, parts.length -  1).join("/")
+            log "still > triggerValueNotifications: Path lookup,", path, ".startsWith ", previous
+            if not path.startsWith previous
+              # still? continue
+              continue
+
           @get(path__, (obj, name) ->
+            log "triggerValueNotifications, obj: ", obj, name
             callback(
               type: 'value'
               path: path__
@@ -196,7 +211,6 @@ class BigDict
             ) if obj
           , omitParentObject: yes)
     )
-    log "triggerValueNotifications, path: ", path
 
   edit: (attrs) ->
 
